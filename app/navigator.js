@@ -4,10 +4,13 @@ import React, {
   Navigator,
   Platform,
   PropTypes,
+  StatusBar,
   StyleSheet,
-  Text
+  Text,
+  View
 } from 'react-native';
 import {connect} from 'react-redux';
+
 
 const ROUTES = {};
 
@@ -79,7 +82,16 @@ class HBNavigator extends Component {
   }
 
   renderScene(route, navigator) {
-    return (<Text>teste</Text>);
+    return (
+      <View>
+        <StatusBar
+          translucent={true}
+          backgroundColor="red"
+          barStyle="light-content"
+        />
+        <Text>Teste</Text>
+      </View>
+    );
   }
 }
 
@@ -90,8 +102,7 @@ HBNavigator.childContextTypes = {
 
 var styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: 'green',
+    flex: 1
   },
 });
 
