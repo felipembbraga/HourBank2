@@ -1,4 +1,4 @@
-
+import {Action} from '../actions';
 
 export type State = {
   isLoggedIn: boolean,
