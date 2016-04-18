@@ -8,7 +8,7 @@ import React, {
 } from 'react-native';
 import MK, {MKButton, MKColor, MKSpinner} from 'react-native-material-kit';
 import { connect } from 'react-redux';
-import {signIn} from '../../actions/authentication_actions';
+import {signIn, resetAuth} from '../../actions/authentication';
 
 // import BaseRef from '../../base';
 
@@ -32,8 +32,12 @@ class SignIn extends Component {
 
     }
 
+    componentDidMount() {
+        this.props.resetAuth();
+    }
+
     render() {
-        if(this.props.authentication.isFetching) {
+        if(this.props.user.isFetching) {
           return (
             <View style={styles.container}>
               <MKSpinner style={styles.spinner}/>
@@ -59,7 +63,7 @@ class SignIn extends Component {
                 value={this.state.password}
                 onChangeText={(text) => this.setState({password: text})}
               />
-              <Text>{this.props.authentication.error}</Text>
+          <Text>{this.props.user.error}</Text>
 
               <View style={styles.buttonGroup}>
                 <SignInButton onPress={this.onPress}/>
@@ -72,10 +76,13 @@ class SignIn extends Component {
     }
 
     onPress() {
+        console.log(this.state);
         this.props.signIn(this.state);
     }
-    componentWillReceiveProps(nextProps) {
-      if(nextProps.authentication.user) {
+
+
+    componentDidUpdate(prevProps, prevState) {
+      if(this.props.user.isLoggedIn) {
         this.props.navigator.immediatelyResetRouteStack([{name: 'home'}]);
       }
     }
@@ -85,7 +92,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     title: {
         flex: 1,
@@ -123,14 +130,15 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
-    authentication: state.authentication
+    user: state.user
   };
 }
 
 function mapDispatchToProps(dispatch) {
 
   return {
-    signIn: (user) => {dispatch(signIn(user))}
+    signIn: (user) => {dispatch(signIn(user))},
+    resetAuth: ()=> {dispatch(resetAuth())}
   };
 }
 

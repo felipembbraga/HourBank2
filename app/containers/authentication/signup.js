@@ -1,8 +1,7 @@
 import React, {Component, StyleSheet, Text, TextInput, View} from 'react-native';
-import {Actions} from 'react-native-router-flux';
 import MK, {MKButton, MKColor, MKSpinner} from 'react-native-material-kit';
 import { connect } from 'react-redux';
-import {signUp} from '../../actions/authentication_actions';
+import {signUp, resetAuth} from '../../actions/authentication';
 
 const SignUpButton = new MKButton.coloredButton().withBackgroundColor(MKColor.Indigo).withText('REGISTRAR').build();
 
@@ -23,8 +22,12 @@ class SignUp extends Component {
         this.onPress = this.onPress.bind(this);
     }
 
+    componentDidMount() {
+        this.props.resetAuth();
+    }
+
     render() {
-      if(this.props.authentication.isFetching) {
+      if(this.props.user.isFetching) {
         return (
           <View style={styles.container}>
             <MKSpinner style={styles.spinner}/>
@@ -52,12 +55,15 @@ class SignUp extends Component {
                 style={styles.input}
                 value={this.state.passwordConfirmation}
                 onChangeText={(text) => this.setState({passwordConfirmation: text})} />
-              <Text>{this.state.errorMessage}</Text>
+            <Text>{this.state.errorMessage}</Text>
               <View style={styles.buttonGroup}>
                 <SignUpButton onPress={this.onPress}/>
               </View>
               <View style={styles.buttonGroup}>
-                <HaveAccountButton onPress={() => {this.props.navigator.pop()}}/>
+                <HaveAccountButton onPress={() => {
+                        this.props.resetAuth();
+                        this.props.navigator.pop();
+                    }}/>
               </View>
             </View>
         )
@@ -70,12 +76,12 @@ class SignUp extends Component {
       this.props.signUp(this.state);
     }
     componentWillReceiveProps(nextProps) {
-      if(nextProps.authentication.user) {
+      if(nextProps.user.user) {
         return this.props.navigator.immediatelyResetRouteStack([{name: 'home'}]);
       }
-      if(nextProps.authentication.error) {
+      if(nextProps.user.error) {
         this.setState({
-          errorMessage: nextProps.authentication.error
+          errorMessage: nextProps.user.error
         });
       }
     }
@@ -83,14 +89,15 @@ class SignUp extends Component {
 
 function mapStateToProps(state) {
   return {
-    authentication: state.authentication
+    user: state.user
   };
 }
 
 function mapDispatchToProps(dispatch) {
 
   return {
-    signUp: (user) => {dispatch(signUp(user))}
+    signUp: (user) => {dispatch(signUp(user))},
+    resetAuth: (user) => {dispatch(resetAuth(user))}
   };
 }
 

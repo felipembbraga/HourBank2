@@ -10,15 +10,24 @@ import React, {
   View
 } from 'react-native';
 import {connect} from 'react-redux';
+import SignIn from './containers/authentication/signin';
+import SignUp from './containers/authentication/signup';
+import Home from './containers/home';
 
 
-const ROUTES = {};
+const ROUTES = {
+    authentication: {
+        signin: SignIn
+    }
+};
 
 class HBNavigator extends Component {
 
   constructor(props) {
     super(props);
     this._handlers = [];
+
+    this.renderScene = this.renderScene.bind(this);
   }
 
   componentDidMount() {
@@ -61,6 +70,12 @@ class HBNavigator extends Component {
 
   render() {
     return (
+        <View style={styles.sceneContainer}>
+          <StatusBar
+            translucent={true}
+            backgroundColor="blue"
+            barStyle="light-content"
+          />
       <Navigator
         ref="navigator"
         style={styles.container}
@@ -78,20 +93,26 @@ class HBNavigator extends Component {
         initialRoute={{}}
         renderScene={this.renderScene}
       />
+  </View>
     );
   }
 
   renderScene(route, navigator) {
-    return (
-      <View>
-        <StatusBar
-          translucent={true}
-          backgroundColor="red"
-          barStyle="light-content"
-        />
-        <Text>Teste</Text>
-      </View>
-    );
+      const scene = null;
+      switch(route.name){
+          case 'signin':
+            return (<SignIn route={route} navigator={navigator} />);
+          case 'signup':
+            return (<SignUp route={route} navigator={navigator} />);
+          case 'home':
+            return (<Home route={route} navigator={navigator} />);
+          default:
+            if(this.props.user.isLoggedIn){
+                return (<Home route={route} navigator={navigator} />);
+            }
+
+            return (<SignIn route={route} navigator={navigator} />);
+      }
   }
 }
 
@@ -100,10 +121,19 @@ HBNavigator.childContextTypes = {
   removeBackButtonListener: PropTypes.func,
 };
 
+function mapStateToProps(state) {
+  return {
+    user: state.user
+  };
+}
+
 var styles = StyleSheet.create({
   container: {
     flex: 1
   },
+  sceneContainer: {
+      flex: 1
+  }
 });
 
-export default HBNavigator;
+export default connect(mapStateToProps)(HBNavigator);

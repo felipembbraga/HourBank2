@@ -1,51 +1,72 @@
-import React,{
-  AsyncStorage,
-  Component,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
-import { connect } from 'react-redux';
+import React, {AsyncStorage, Component, StyleSheet, Text, View} from 'react-native';
+import {connect} from 'react-redux';
+import MK, {MKButton, MKColor, MKSpinner} from 'react-native-material-kit';
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+const SignOutButton = new MKButton.coloredButton().withBackgroundColor(MKColor.Indigo).withText('Sair').build();
 
 class Home extends Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      user: null
-    }
-  }
-  componentWillMount() {
-    AsyncStorage.getItem('user').then((user) => {
-      this.setState({user: JSON.parse(user)});
-    })
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            user: null
+        }
 
-  saudation() {
-    return (
-      <Text>
-        Welcome back, {this.props.authentication.user.email}!
-      </Text>
-    )
-  }
-  render() {
-    return (
-        <View style={styles.container}>
-          {this.saudation()}
-        </View>
-      );
-  }
+        this.onPress = this.onPress.bind(this);
+    }
+    componentWillMount() {}
+
+    saudation() {
+        return (
+            <Text>
+                Welcome back, {this.props.user.email}!
+            </Text>
+        )
+    }
+    render() {
+        return (
+            <View style={styles.container}>
+                {this.saudation()}
+                <SignOutButton onPress={this.onPress}/>
+                <ActionButton buttonColor="rgba(231,76,60,1)" onPress={() => {
+                    console.log("hi")
+                }}>
+                    <ActionButton.Item buttonColor='#ff004c' title="Saída" onPress={() => {}}>
+                        <Icon name="arrow-left-c" style={styles.actionButtonIcon}/>
+                    </ActionButton.Item>
+                    <ActionButton.Item buttonColor='#1abc9c' title="Entrada" onPress={() => {}}>
+                        <Icon name="arrow-right-c" style={styles.actionButtonIcon}/>
+                    </ActionButton.Item>
+                </ActionButton>
+            </View>
+        );
+    }
+
+    onPress() {
+        this.props.navigator.immediatelyResetRouteStack([
+            {
+                name: 'signin'
+            }
+        ]);
+    }
 }
 
 var styles = StyleSheet.create({
-  container: {
-    flex: 1
-  }
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    actionButtonIcon: {
+        fontSize: 20,
+        height: 22,
+        color: 'white',
+    }
 });
 
 function mapStateToProps(state) {
-  return {
-    authentication: state.authentication
-  };
+    return {user: state.user};
 }
 
 export default connect(mapStateToProps)(Home);

@@ -1,3 +1,3 @@
-import {signIn, signUp} from './authentication';
+import {signIn, signUp, resetAuth} from './authentication';
 
-export default {signIn, signUp};
+export default {signIn, signUp, resetAuth};
