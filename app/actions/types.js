@@ -30,6 +30,9 @@ export type Action = {
 } | {
   type: 'SIGNUP_ERROR',
   payload: any
+} | {
+  type: 'SWITCH_TAB',
+  payload: string
 };
 
 export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;

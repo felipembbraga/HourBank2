@@ -12,7 +12,7 @@ import React, {
 import {connect} from 'react-redux';
 import SignIn from './containers/authentication/signin';
 import SignUp from './containers/authentication/signup';
-import Home from './containers/home';
+import SideMenu from './containers/sidemenu';
 
 
 const ROUTES = {
@@ -28,6 +28,9 @@ class HBNavigator extends Component {
     this._handlers = [];
 
     this.renderScene = this.renderScene.bind(this);
+    this.addBackButtonListener = this.addBackButtonListener.bind(this);
+    this.removeBackButtonListener = this.removeBackButtonListener.bind(this);
+    this.handleBackButton = this.handleBackButton.bind(this);
   }
 
   componentDidMount() {
@@ -49,7 +52,7 @@ class HBNavigator extends Component {
     this._handlers.push(listener);
   }
 
-  removeBackButtonListener() {
+  removeBackButtonListener(listener) {
     this._handlers = this._handlers.filter((handler) => handler !== listener);
   }
 
@@ -105,10 +108,10 @@ class HBNavigator extends Component {
           case 'signup':
             return (<SignUp route={route} navigator={navigator} />);
           case 'home':
-            return (<Home route={route} navigator={navigator} />);
+            return (<SideMenu route={route} navigator={navigator} />);
           default:
             if(this.props.user.isLoggedIn){
-                return (<Home route={route} navigator={navigator} />);
+                return (<SideMenu route={route} navigator={navigator} />);
             }
 
             return (<SignIn route={route} navigator={navigator} />);
