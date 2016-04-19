@@ -74,12 +74,7 @@ class HBNavigator extends Component {
   render() {
     return (
         <View style={styles.sceneContainer}>
-          <StatusBar
-            translucent={true}
-            backgroundColor="blue"
-            barStyle="light-content"
-          />
-      <Navigator
+          <Navigator
         ref="navigator"
         style={styles.container}
         configureScene={(route) => {
