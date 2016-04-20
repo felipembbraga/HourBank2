@@ -4,7 +4,8 @@ import React, {
     StyleSheet,
     Text,
     TextInput,
-    View
+    View,
+    Image
 } from 'react-native';
 import MK, {MKButton, MKColor, MKSpinner} from 'react-native-material-kit';
 import { connect } from 'react-redux';
@@ -12,12 +13,14 @@ import {signIn, resetAuth} from '../../actions/authentication';
 
 // import BaseRef from '../../base';
 
-const SignInButton = new MKButton.coloredButton().withBackgroundColor(MKColor.Indigo).withText('ENTRAR').build();
+const SignInButton = new MKButton.coloredButton()
+  .withBackgroundColor(MKColor.Indigo).withText('ENTRAR').build();
 
-const CreateAccountButton = new MKButton.coloredButton().withBackgroundColor(MKColor.Silver).withTextStyle({
+const CreateAccountButton = new MKButton.coloredButton()
+  .withBackgroundColor(MKColor.Silver).withTextStyle({
     color: '#212121',
     fontWeight: 'bold',
-  }).withText('PRECISO DE UMA CONTA...').build();
+  }).withText('NÂO TENHO CADASTRO').build();
 
 class SignIn extends Component {
     constructor(props) {
@@ -48,30 +51,47 @@ class SignIn extends Component {
         return (
             <View style={styles.container}>
 
-              <Text style={styles.label}>Email:
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={this.state.email}
-                onChangeText={(text) => this.setState({email: text})}
-                keyboardType="email-address"
-              />
-              <Text style={styles.label}>Password</Text>
-              <TextInput
-                secureTextEntry={true}
-                style={styles.input}
-                value={this.state.password}
-                onChangeText={(text) => this.setState({password: text})}
-              />
-          <Text>{this.props.user.error}</Text>
+              <View style={styles.header}>
+                <Image
+                source={require('../img/clock.png')}
+                style={{width: 150, height: 150}} />
+              </View>
 
-              <View style={styles.buttonGroup}>
+              <View style={styles.body}>
+
+                <Text style={styles.label}>Email:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={this.state.email}
+                  onChangeText={(text) => this.setState({email: text})}
+                  keyboardType="email-address"
+                />
+
+                <Text style={styles.label}>Senha:</Text>
+                <TextInput
+                  secureTextEntry={true}
+                  style={styles.input}
+                  value={this.state.password}
+                  onChangeText={(text) => this.setState({password: text})}
+                />
+
+              <Text>{this.props.user.error}</Text>
+
+              <View style={styles.buttonSignin}>
                 <SignInButton onPress={this.onPress}/>
               </View>
-              <View style={styles.buttonGroup}>
+
+              <Text style={styles.divider}>
+                Ou
+              </Text>
+
+              <View style={styles.buttonSignup}>
                 <CreateAccountButton onPress={() => {this.props.navigator.push({name: 'signup', title: 'Registre-se'})}}/>
               </View>
+
             </View>
+
+          </View>
         )
     }
 
@@ -99,9 +119,15 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         alignItems: 'stretch'
     },
-    form: {
-        flex: 2,
-        justifyContent: 'space-around',
+    header: {
+      flex: 1,
+      justifyContent: 'flex-end'
+
+    },
+    body: {
+        flex: 1.5,
+        justifyContent: 'center',
+        width: 300,
         alignItems: 'center'
     },
     input: {
@@ -118,13 +144,28 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         marginLeft: 5
     },
-    buttonGroup: {
-        justifyContent: 'center',
+    buttonSignin: {
         marginTop: 20,
-        alignItems: 'stretch'
+        width: 290,
+        justifyContent: 'flex-start'
     },
-    button: {
+    buttonSignup: {
+        justifyContent: 'center',
+        alignItems: 'stretch',
+        width: 290
+    },
+    divider: {
+      marginTop: 5,
+      marginBottom:5,
+
+    },
+    labelHeader: {
+      fontSize: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 10
     }
+
 
 });
 

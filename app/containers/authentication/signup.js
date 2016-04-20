@@ -1,14 +1,28 @@
-import React, {Component, StyleSheet, Text, TextInput, View} from 'react-native';
-import MK, {MKButton, MKColor, MKSpinner} from 'react-native-material-kit';
+import React, {
+  Component,
+  StyleSheet,
+  Text,
+  TextInput,
+  ToolbarAndroid,
+  View} from 'react-native';
+
+import MK, {
+  MKButton,
+  MKColor,
+  MKSpinner} from 'react-native-material-kit';
+
 import { connect } from 'react-redux';
+
 import {signUp, resetAuth} from '../../actions/authentication';
 
-const SignUpButton = new MKButton.coloredButton().withBackgroundColor(MKColor.Indigo).withText('REGISTRAR').build();
+const SignUpButton = new MKButton.coloredButton()
+  .withBackgroundColor(MKColor.Indigo).withText('REGISTRAR').build();
 
-const HaveAccountButton = new MKButton.coloredButton().withBackgroundColor(MKColor.Silver).withTextStyle({
+const HaveAccountButton = new MKButton.coloredButton()
+  .withBackgroundColor(MKColor.Silver).withTextStyle({
     color: '#212121',
     fontWeight: 'bold',
-  }).withText('JÁ TENHO UMA CONTA...').build();
+  }).withText('JÁ TENHO CADASTRO').build();
 
 class SignUp extends Component {
     constructor(props) {
@@ -37,34 +51,54 @@ class SignUp extends Component {
       }
         return (
             <View style={styles.container}>
-              <Text style={styles.label}>Username:</Text>
-              <TextInput
-                style={styles.input}
-                value={this.state.email}
-                onChangeText={(text) => this.setState({email: text})}
-                placeholder={'email@example.com'} />
-              <Text style={styles.label}>Senha:</Text>
-              <TextInput
-                secureTextEntry={true}
-                style={styles.input}
-                value={this.state.password}
-                onChangeText={(text) => this.setState({password: text})} />
-              <Text style={styles.label}>Confirmar Senha:</Text>
-              <TextInput
-                secureTextEntry={true}
-                style={styles.input}
-                value={this.state.passwordConfirmation}
-                onChangeText={(text) => this.setState({passwordConfirmation: text})} />
-            <Text>{this.state.errorMessage}</Text>
-              <View style={styles.buttonGroup}>
-                <SignUpButton onPress={this.onPress}/>
+
+              <View style={styles.header}>
+                <ToolbarAndroid
+                  title="Cadastro"
+                  titleColor="white"
+                  style={styles.toolbar}/>
               </View>
-              <View style={styles.buttonGroup}>
-                <HaveAccountButton onPress={() => {
-                        this.props.resetAuth();
-                        this.props.navigator.pop();
-                    }}/>
+
+              <View style={styles.body}>
+                <Text style={styles.label}>Email:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={this.state.email}
+                  onChangeText={(text) => this.setState({email: text})}
+                  placeholder={'email@example.com'} />
+
+                <Text style={styles.label}>Senha:</Text>
+                <TextInput
+                  secureTextEntry={true}
+                  style={styles.input}
+                  value={this.state.password}
+                  onChangeText={(text) => this.setState({password: text})} />
+
+                <Text style={styles.label}>Confirmar Senha:</Text>
+                <TextInput
+                  secureTextEntry={true}
+                  style={styles.input}
+                  value={this.state.passwordConfirmation}
+                  onChangeText={(text) => this.setState({passwordConfirmation: text})} />
+
+              <Text>{this.state.errorMessage}</Text>
+
+                <View style={styles.buttonSubmit}>
+                  <SignUpButton onPress={this.onPress}/>
+                </View>
+
+                <Text style={styles.divider}>
+                  Ou
+                </Text>
+
+                <View style={styles.buttonSignin}>
+                  <HaveAccountButton onPress={() => {
+                          this.props.resetAuth();
+                          this.props.navigator.pop();
+                      }}/>
+                </View>
               </View>
+
             </View>
         )
     }
@@ -103,9 +137,16 @@ function mapDispatchToProps(dispatch) {
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1
+    },
+    header: {
+      marginTop: 24
+    },
+    body: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        width: 300,
+        alignSelf: 'center'
     },
     input: {
         padding: 4,
@@ -120,6 +161,23 @@ const styles = StyleSheet.create({
         fontSize: 18,
         alignSelf: 'flex-start',
         marginLeft: 5
+    },
+    buttonSignin: {
+      width: 290
+    },
+    buttonSubmit: {
+      marginTop: 20,
+      width: 290
+    },
+    divider: {
+      marginTop: 5,
+      marginBottom:5,
+      alignSelf: 'center'
+
+    },
+    toolbar: {
+      height: 56,
+      backgroundColor: '#3F51B5'
     }
 });
 

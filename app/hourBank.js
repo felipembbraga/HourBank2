@@ -24,7 +24,7 @@ class HourBank extends Component {
       <View style={styles.container}>
         <StatusBar
           translucent={true}
-          backgroundColor="rgba(255, 214, 0, 0.8)"
+          backgroundColor="#303F9F"
           barStyle="light-content"
         />
         <HBNavigator />
