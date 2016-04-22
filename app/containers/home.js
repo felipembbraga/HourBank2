@@ -224,7 +224,7 @@ var styles = HBStyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Color.color.LightPrimaryColor
+    backgroundColor: Color.color.SecondText
   },
   clockText: {
     color: 'white'
