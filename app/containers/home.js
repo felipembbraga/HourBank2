@@ -16,6 +16,7 @@ import moment from 'moment';
 import ptBr from 'moment/locale/pt-br';
 
 import PointList from '../components/PointList';
+import Color from '../resource/color'; //Importa a palheta de cores
 
 class Home extends Component {
     constructor(props) {
@@ -100,7 +101,7 @@ class Home extends Component {
               </View>
 
               {/*Action Button*/}
-              <ActionButton buttonColor="#3C43E7">
+              <ActionButton buttonColor={ Color.color.AccentColor } >
 
                 <ActionButton.Item
                   buttonColor={pointItem.color}
@@ -141,13 +142,13 @@ var styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'stretch',
-        paddingTop: 25
+        paddingTop: 24
     },
     clockContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#303F9F'
+      backgroundColor: Color.color.PrimaryColor
     },
     clockText: {
         color: 'white'
