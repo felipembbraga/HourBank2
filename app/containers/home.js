@@ -65,12 +65,20 @@ class Home extends Component {
      */
     _hitPoint(type) {
       this.setState({isLoading: true});
+      let time = moment();
       // busca a localização
       navigator.geolocation.getCurrentPosition(async (location) => {
         try {
           // busca a hora no timezonedb
           let timezone = await getTime(location);
+          // converte o timestamp
+          time = moment.unix(timezone.timestamp).add(3, 'hour');
 
+
+        } catch ({error, message}) {
+          this.setState({isLoading: false});
+          ToastAndroid.show('Erro em receber a hora da rede', ToastAndroid.SHORT);
+        } finally {
           // pega a Imagem
           ImagePickerManager.launchCamera(this.cameraOptions, (response)  => {
             if(response.didCancel) {
@@ -85,9 +93,6 @@ class Home extends Component {
               return;
             }
 
-            console.log(response);
-            // converte o timestamp
-            let time = moment.unix(timezone.timestamp).add(3, 'hour');
 
             // extrai da data
             let date = time.format('DD/MM/YYYY');
@@ -99,7 +104,8 @@ class Home extends Component {
               date,
               hour: time.hour(),
               minute: time.minute(),
-              picture: {uri: 'data:image/jpeg;base64,' + response.data, isStatic: true}
+              // picture: {uri: 'data:image/jpeg;base64,' + response.data, isStatic: true}
+              picture: {uri: response.uri, isStatic: true}
             }
 
             // salva no state
@@ -111,11 +117,6 @@ class Home extends Component {
             });
 
           });
-
-
-        } catch ({error, message}) {
-          this.setState({isLoading: false});
-          ToastAndroid.show('Erro em receber a hora da rede', ToastAndroid.SHORT);
         }
       }, () => {
         this.setState({isLoading: false});

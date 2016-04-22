@@ -68,7 +68,10 @@ export function signUp(user) {
         dispatch(request(user));
         baseRef.createUser(user)
             .then((json) => dispatch(response(json)))
-            .catch((err) => dispatch(error(err)));
+            .catch((err) => {
+              console.log(err.message);
+              dispatch(error(err));
+            });
     }
 }
 

@@ -6,7 +6,8 @@ export type State = {
     didInvalidate: boolean,
     error: ? string,
     id: ? string,
-    email: ? string
+    email: ? string,
+    registered: boolean
 };
 
 
@@ -18,6 +19,7 @@ const initialState = {
     error: null,
     id: null,
     email: null,
+    isRegistered: false
 };
 
 export default function user(state: State = initialState, action) {
@@ -54,7 +56,8 @@ export default function user(state: State = initialState, action) {
         case 'SIGNUP_RESPONSE':
             return {
                 ...state,
-                isFetching: false
+                isFetching: false,
+                isRegistered: true
             };
         case 'SIGNUP_ERROR':
             return {

@@ -2,6 +2,7 @@ import React, {
   Component,
   Text,
   TextInput,
+  ToastAndroid,
   ToolbarAndroid,
   View} from 'react-native';
 
@@ -47,7 +48,7 @@ class SignUp extends Component {
     render() {
       if(this.props.user.isFetching) {
         return (
-          <View style={styles.container}>
+          <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
             <MKSpinner style={styles.spinner}/>
             <Text style={styles.legendLabel}>Aguarde...</Text>
           </View>
@@ -90,7 +91,7 @@ class SignUp extends Component {
                   value={this.state.passwordConfirmation}
                   onChangeText={(text) => this.setState({passwordConfirmation: text})} />
 
-              <Text>{this.state.errorMessage}</Text>
+                <Text>{this.state.errorMessage}</Text>
 
                 <View style={styles.buttonSubmit}>
                   <SignUpButton onPress={this.onPress}/>
@@ -102,9 +103,9 @@ class SignUp extends Component {
 
                 {/* <View style={styles.buttonSignin}>
                   <HaveAccountButton onPress={() => {
-                          this.props.resetAuth();
-                          this.props.navigator.pop();
-                      }}/>
+                  this.props.resetAuth();
+                  this.props.navigator.pop();
+                  }}/>
                 </View> */}
 
               </View>
@@ -119,9 +120,16 @@ class SignUp extends Component {
       }
       this.props.signUp(this.state);
     }
+    componentDidUpdate(prevProps, prevState) {
+      if(this.props.user.isLoggedIn) {
+        this.props.navigator.immediatelyResetRouteStack([{name: 'home'}]);
+      }
+    }
     componentWillReceiveProps(nextProps) {
-      if(nextProps.user.user) {
-        return this.props.navigator.immediatelyResetRouteStack([{name: 'home'}]);
+      console.log(nextProps.user);
+      if(nextProps.user.isRegistered) {
+        ToastAndroid.show('Cadastrado com sucesso!', ToastAndroid.SHORT)
+        this.props.navigator.pop();
       }
       if(nextProps.user.error) {
         this.setState({
