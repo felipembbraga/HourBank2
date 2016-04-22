@@ -54,10 +54,12 @@ class Home extends Component {
             points,
             dataSource : this.state.dataSource.cloneWithRows(points)
           });
+        }, () => {
+          ToastAndroid.show('Erro em receber o ponto geográfico', ToastAndroid.SHORT);
         });
 
       } catch ({code, message}) {
-        ToastAndroid.show('This is a toast with short duration', ToastAndroid.SHORT);
+        ToastAndroid.show('Erro ao processar o ponto', ToastAndroid.SHORT);
       }
     }
 
@@ -119,7 +121,7 @@ class Home extends Component {
 
             </View>
         );
-      
+
     }
 
     borderStylus(color) {
