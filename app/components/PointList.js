@@ -35,7 +35,7 @@ class PointList extends Component {
     return (
       <PointListItem
         point={point}
-        onEditPress={this.props.onEditPress}
+        onViewPress={this.props.onViewPress}
         onLocationPress={this.props.onLocationPress} />
     );
   }
@@ -69,7 +69,7 @@ class PointList extends Component {
 
 PointList.propTypes = {
   points: PropTypes.array.isRequired,
-  onEditPress: PropTypes.func.isRequired,
+  onViewPress: PropTypes.func.isRequired,
   onLocationPress: PropTypes.func.isRequired
 }
 

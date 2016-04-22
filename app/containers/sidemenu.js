@@ -17,7 +17,7 @@ class SideMenu extends Component {
       case 'home':
         return <Home navigator={this.props.navigator} />
       default:
-
+        return <Home navigator={this.props.navigator} />
     }
   }
 

@@ -26,9 +26,9 @@ class PointListItem extends Component {
               <Icon name="location" style={[styles.icon, styles.iconLocation]} />
             </View>
           </Touchable>
-          <Touchable onPress={()=>this.props.onEditPress(this.props.point)}>
+          <Touchable onPress={()=>this.props.onViewPress(this.props.point)}>
             <View style={styles.button}>
-              <Icon name="edit" style={[styles.icon]} />
+              <Icon name="eye" style={[styles.icon]} />
             </View>
           </Touchable>
         </View>

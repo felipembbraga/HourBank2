@@ -75,23 +75,23 @@ class HBNavigator extends Component {
     return (
         <View style={styles.sceneContainer}>
           <Navigator
-        ref="navigator"
-        style={styles.container}
-        configureScene={(route) => {
-          if (Platform.OS === 'android') {
-            return Navigator.SceneConfigs.FloatFromBottomAndroid;
-          }
-          // TODO: Proper scene support
-          if (route.shareSettings || route.friend) {
-            return Navigator.SceneConfigs.FloatFromRight;
-          } else {
-            return Navigator.SceneConfigs.FloatFromBottom;
-          }
-        }}
-        initialRoute={{}}
-        renderScene={this.renderScene}
-      />
-  </View>
+            ref="navigator"
+            style={styles.container}
+            configureScene={(route) => {
+              if (Platform.OS === 'android') {
+                return Navigator.SceneConfigs.FloatFromBottomAndroid;
+              }
+              // TODO: Proper scene support
+              if (route.shareSettings || route.friend) {
+                return Navigator.SceneConfigs.FloatFromRight;
+              } else {
+                return Navigator.SceneConfigs.FloatFromBottom;
+              }
+            }}
+            initialRoute={{}}
+            renderScene={this.renderScene}
+          />
+        </View>
     );
   }
 

@@ -11,7 +11,7 @@ import React, {
   ToastAndroid,
   View
 } from 'react-native';
-import Camera from 'react-native-camera';
+import { MKSpinner } from 'react-native-material-kit';
 import {connect} from 'react-redux';
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
@@ -21,21 +21,37 @@ import Color from '../resource/color'; //Importa a palheta de cores
 import ActButton from '../components/common/action-button';
 import {getTime} from '../resource/timezonedb';
 import Touchable from '../components/common/Touchable';
+import PointViewModal from '../components/PointViewModal';
+
+var ImagePickerManager = require('NativeModules').ImagePickerManager;
 
 class Home extends Component {
     constructor(props) {
         super(props);
+        this.cameraOptions = {
+          title: 'Select Avatar', // specify null or empty string to remove the title
+          cancelButtonTitle: 'Cancelar',
+          takePhotoButtonTitle: 'Capturar...', // specify null or empty string to remove this button
+          chooseFromLibraryButtonTitle: 'Buscar na biblioteca...', // specify null or empty string to remove this button
+          cameraType: 'front', // 'front' or 'back'
+          aspectX: 1, // android only - aspectX:aspectY, the cropping image's ratio of width to height
+          aspectY: 1, // android only - aspectX:aspectY, the cropping image's ratio of width to height
+          quality: 0.2, // 0 to 1, photos only
+          angle: 0, // android only, photos only
+          allowsEditing: true, // Built in functionality to resize/reposition the image after selection
+        };
+
         const dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             modal: {
-              animated: true,
-              modalVisible: false,
-              transparent: false
+              point: {},
+              isVisible: false,
             },
             user: null,
             currentDate: moment(),
             points: [],
-            dataSource
+            dataSource,
+            isLoading: false
         }
 
         this.onPress = this.onPress.bind(this);
@@ -47,39 +63,61 @@ class Home extends Component {
      * @return {void}
      */
     _hitPoint(type) {
-
-      this._setModalVisible(true);
+      this.setState({isLoading: true});
       // busca a localização
       navigator.geolocation.getCurrentPosition(async (location) => {
         try {
           // busca a hora no timezonedb
           let timezone = await getTime(location);
 
-          // converte o timestamp
-          let time = moment.unix(timezone.timestamp).add(3, 'hour');
+          // pega a Imagem
+          ImagePickerManager.launchCamera(this.cameraOptions, (response)  => {
+            if(response.didCancel) {
+              this.setState({isLoading: false});
+              ToastAndroid.show('Cancelado.', ToastAndroid.SHORT);
+              return;
+            }
+            if(response.error) {
+              this.setState({isLoading: false});
+              ToastAndroid.show('Erro ao receber a foto', ToastAndroid.SHORT);
+              console.log(error);
+              return;
+            }
 
-          // extrai da data
-          let date = time.format('DD/MM/YYYY');
+            console.log(response);
+            // converte o timestamp
+            let time = moment.unix(timezone.timestamp).add(3, 'hour');
 
-          // gera o ponto
-          point = {
-            type,
-            location,
-            date,
-            hour: time.hour(),
-            minute: time.minute()
-          }
+            // extrai da data
+            let date = time.format('DD/MM/YYYY');
 
-          // salva no state
-          let points = this.state.points.concat([point]);
-          this.setState({
-            points,
-            dataSource : this.state.dataSource.cloneWithRows(points)
+            // gera o ponto
+            point = {
+              type,
+              location,
+              date,
+              hour: time.hour(),
+              minute: time.minute(),
+              picture: {uri: 'data:image/jpeg;base64,' + response.data, isStatic: true}
+            }
+
+            // salva no state
+            let points = this.state.points.concat([point]);
+            this.setState({
+              isLoading: false,
+              points,
+              dataSource : this.state.dataSource.cloneWithRows(points)
+            });
+
           });
+
+
         } catch ({error, message}) {
+          this.setState({isLoading: false});
           ToastAndroid.show('Erro em receber a hora da rede', ToastAndroid.SHORT);
         }
       }, () => {
+        this.setState({isLoading: false});
         ToastAndroid.show('Erro em receber o ponto geográfico', ToastAndroid.SHORT);
       });
     }
@@ -91,73 +129,89 @@ class Home extends Component {
       Linking.openURL(url);
     }
 
-    _setModalVisible(visible) {
+    _viewPoint(point) {
       this.setState({
         modal: {
-          ...this.state.modal,
-          modalVisible: visible
+          point: point,
+          isVisible: true
         }
-      })
+      });
+
     }
 
-    takePicture() {
-    this.camera.capture()
-      .then((data) => console.log(data))
-      .catch(err => console.error(err));
+    _onModalClose() {
+      this.setState({
+        modal: {
+          point: {},
+          isVisible: false
+        }
+      });
     }
 
     render() {
-
-        let lastPoint = this.state.points.slice(-1)[0];
-        let pointItem = {
-          color: '#1abc9c',
-          title: 'Entrada',
-          icon: 'arrow-right-c',
-          type: 'in'
-        };
-
-        // Se o último ponto foi de entrada, altera o botão para saída
-        if(lastPoint && lastPoint.type === 'in') {
-          pointItem = {
-            color: '#ff004c',
-            title: 'Saída',
-            icon: 'arrow-left-c',
-            type: 'out'
-          };
-        }
-
-        let actionItem = {
-          buttonColor: pointItem.color,
-          title: pointItem.title,
-          iconName: pointItem.icon,
-          onPress: this._hitPoint.bind(this, pointItem.type)
-        }
-
-
+      if(this.state.isLoading) {
         return (
-            <View style={styles.container}>
-              
-              <View style={[styles.clockContainer]}>
-                <Text style={[styles.date, styles.clockText]}>{this.state.currentDate.format('DD/MMMM/YYYY')}</Text>
-                <Text style={[styles.clockText]}>{this.state.currentDate.format('dddd')}</Text>
-              </View>
-              <View style={[styles.pointListContainer]}>
-                <PointList
-                  points={this.state.points}
-                  onEditPress={()=>Alert.alert('editando...')}
-                  onLocationPress={this._linkingLocation.bind(this)}
-                />
-              </View>
+          <View style={styles.modalContainer}>
+            <MKSpinner style={styles.spinner}/>
+          </View>
+        )
+      }
 
-              {/*Action Button*/}
+      let lastPoint = this.state.points.slice(-1)[0];
+      let pointItem = {
+        color: '#1abc9c',
+        title: 'Entrada',
+        icon: 'arrow-right-c',
+        type: 'in'
+      };
 
-              <ActButton
-                buttonColor={Color.color.AccentColor}
-                actionItems={[actionItem]}
-              />
+      // Se o último ponto foi de entrada, altera o botão para saída
+      if(lastPoint && lastPoint.type === 'in') {
+        pointItem = {
+          color: '#ff004c',
+          title: 'Saída',
+          icon: 'arrow-left-c',
+          type: 'out'
+        };
+      }
 
-            </View>
-        );
+      let actionItem = {
+        buttonColor: pointItem.color,
+        title: pointItem.title,
+        iconName: pointItem.icon,
+        onPress: this._hitPoint.bind(this, pointItem.type)
+      }
+
+
+
+
+      return (
+        <View style={styles.container}>
+          <PointViewModal
+            {...this.state.modal}
+            onRequestClose={this._onModalClose.bind(this)}
+          />
+          <View style={[styles.clockContainer]}>
+            <Text style={[styles.date, styles.clockText]}>{this.state.currentDate.format('DD/MMMM/YYYY')}</Text>
+            <Text style={[styles.clockText]}>{this.state.currentDate.format('dddd')}</Text>
+          </View>
+          <View style={[styles.pointListContainer]}>
+            <PointList
+              points={this.state.points}
+              onViewPress={this._viewPoint.bind(this)}
+              onLocationPress={this._linkingLocation.bind(this)}
+            />
+          </View>
+
+          {/*Action Button*/}
+
+          <ActButton
+            buttonColor={Color.color.AccentColor}
+            actionItems={[actionItem]}
+          />
+
+        </View>
+      );
 
     }
 
@@ -184,6 +238,12 @@ var styles = StyleSheet.create({
     alignItems: 'stretch',
     paddingTop: 24,
     backgroundColor: 'white'
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20
   },
   innerContainer: {
     borderRadius: 10,

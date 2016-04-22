@@ -53,8 +53,8 @@ class SignIn extends Component {
 
               <View style={styles.header}>
                 <Image
-                source={require('../img/clock.png')}
-                style={{width: 150, height: 150}} />
+                  source={require('../img/clock.png')}
+                  style={{width: 150, height: 150}} />
               </View>
 
               <View style={styles.body}>
@@ -75,23 +75,23 @@ class SignIn extends Component {
                   onChangeText={(text) => this.setState({password: text})}
                 />
 
-              <Text>{this.props.user.error}</Text>
+                <Text>{this.props.user.error}</Text>
 
-              <View style={styles.buttonSignin}>
-                <SignInButton onPress={this.onPress}/>
-              </View>
+                <View style={styles.buttonSignin}>
+                  <SignInButton onPress={this.onPress}/>
+                </View>
 
-              <Text style={styles.divider}>
-                Ou
-              </Text>
+                <Text style={styles.divider}>
+                  Ou
+                </Text>
 
-              <View style={styles.buttonSignup}>
-                <CreateAccountButton onPress={() => {this.props.navigator.push({name: 'signup', title: 'Registre-se'})}}/>
+                <View style={styles.buttonSignup}>
+                  <CreateAccountButton onPress={() => {this.props.navigator.push({name: 'signup', title: 'Registre-se'})}}/>
+                </View>
+
               </View>
 
             </View>
-
-          </View>
         )
     }
 
