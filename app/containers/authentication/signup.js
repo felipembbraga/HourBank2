@@ -1,6 +1,5 @@
 import React, {
   Component,
-  StyleSheet,
   Text,
   TextInput,
   ToolbarAndroid,
@@ -13,7 +12,11 @@ import MK, {
 
 import { connect } from 'react-redux';
 
+import * as HBStyleSheet from '../../components/common/HBStyleSheet';
 import {signUp, resetAuth} from '../../actions/authentication';
+import Header from '../../components/common/Header';
+import BackButtonIcon from '../../components/common/BackButtonIcon';
+import Color from '../../resource/color';
 
 const SignUpButton = new MKButton.coloredButton()
   .withBackgroundColor(MKColor.Indigo).withText('REGISTRAR').build();
@@ -40,6 +43,7 @@ class SignUp extends Component {
         this.props.resetAuth();
     }
 
+
     render() {
       if(this.props.user.isFetching) {
         return (
@@ -52,12 +56,21 @@ class SignUp extends Component {
         return (
             <View style={styles.container}>
 
-              <View style={styles.header}>
-                <ToolbarAndroid
-                  title="Cadastro"
-                  titleColor="white"
-                  style={styles.toolbar}/>
-              </View>
+              <Header
+                style={styles.header}
+                leftItem={{
+                  layout: 'icon',
+                  title: 'Close',
+                  icon: require('../../components/common/BackButtonIcon'),
+                  onPress: this.dismiss.bind(this),
+                }}>
+                <View style={styles.headerContent}>
+                  <Text style={styles.title}>
+                    Cadastro
+                  </Text>
+                </View>
+              </Header>
+
 
               <View style={styles.body}>
                 <Text style={styles.label}>Email:</Text>
@@ -87,16 +100,17 @@ class SignUp extends Component {
                   <SignUpButton onPress={this.onPress}/>
                 </View>
 
-                <Text style={styles.divider}>
+                {/*<Text style={styles.divider}>
                   Ou
-                </Text>
+                </Text>*/}
 
-                <View style={styles.buttonSignin}>
+                {/* <View style={styles.buttonSignin}>
                   <HaveAccountButton onPress={() => {
                           this.props.resetAuth();
                           this.props.navigator.pop();
                       }}/>
-                </View>
+                </View> */}
+
               </View>
 
             </View>
@@ -119,7 +133,12 @@ class SignUp extends Component {
         });
       }
     }
-}
+
+    dismiss() {
+      this.props.resetAuth();
+      this.props.navigator.pop();
+    }
+  }
 
 function mapStateToProps(state) {
   return {
@@ -135,50 +154,71 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    header: {
-      marginTop: 24
-    },
-    body: {
-        flex: 1,
-        justifyContent: 'center',
-        width: 300,
-        alignSelf: 'center'
-    },
-    input: {
-        padding: 4,
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-        margin: 5,
-        alignSelf: 'center'
-    },
-    label: {
-        fontSize: 18,
-        alignSelf: 'flex-start',
-        marginLeft: 5
-    },
-    buttonSignin: {
-      width: 290
-    },
-    buttonSubmit: {
-      marginTop: 20,
-      width: 290
-    },
-    divider: {
-      marginTop: 5,
-      marginBottom:5,
-      alignSelf: 'center'
 
+var styles = HBStyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    android: {
+      backgroundColor: Color.color.PrimaryColor,
     },
-    toolbar: {
-      height: 56,
-      backgroundColor: '#3F51B5'
-    }
+  },
+  headerContent: {
+    android: {
+      flex: 1,
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+    },
+    ios: {
+      height: 65,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  },
+  title: {
+    color: 'white',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  body: {
+      flex: 1,
+      justifyContent: 'center',
+      width: 300,
+      alignSelf: 'center'
+  },
+  input: {
+      padding: 4,
+      height: 40,
+      borderColor: 'gray',
+      borderWidth: 1,
+      borderRadius: 5,
+      margin: 5,
+      alignSelf: 'center'
+  },
+  label: {
+      fontSize: 18,
+      alignSelf: 'flex-start',
+      marginLeft: 5
+  },
+  buttonSignin: {
+    width: 290
+  },
+  buttonSubmit: {
+    marginTop: 20,
+    width: 290
+  },
+  divider: {
+    marginTop: 5,
+    marginBottom:5,
+    alignSelf: 'center'
+
+  },
+  toolbar: {
+    height: 56,
+    backgroundColor: '#3F51B5'
+  }
+
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignUp);
