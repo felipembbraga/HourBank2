@@ -1,6 +1,7 @@
 import Firebase from 'firebase';
+import Config from './config/config'
 
-const firebaseUrl = 'https://blistering-torch-2914.firebaseio.com/';
+const firebaseUrl = Config.firebase.url;
 
 export default function getBaseRef() {
     return new Firebase(firebaseUrl);

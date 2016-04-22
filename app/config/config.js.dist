@@ -1,0 +1,7 @@
+var Config = {
+  firebase: {
+    url: 'string'
+  }
+}
+
+module.exports = Config;
