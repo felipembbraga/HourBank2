@@ -7,9 +7,21 @@ import {switchTab} from '../actions/navigation';
 
 class SideMenu extends Component {
 
+
   constructor(props) {
     super(props);
     this.renderNavigationView = this.renderNavigationView.bind(this);
+    this.openDrawer = this.openDrawer.bind(this);
+  }
+
+  getChildContext() {
+    return {
+      openDrawer: this.openDrawer,
+    };
+  }
+
+  openDrawer() {
+    this.refs.drawer.openDrawer();
   }
 
   renderView() {
@@ -64,6 +76,7 @@ class SideMenu extends Component {
     return (
       <DrawerLayout
         ref="drawer"
+        drawerWidth={290}
         drawerPosition="left"
         renderNavigationView={this.renderNavigationView}>
         {this.renderView()}
@@ -72,6 +85,10 @@ class SideMenu extends Component {
   }
 
 }
+
+SideMenu.childContextTypes = {
+  openDrawer: React.PropTypes.func,
+};
 
 const styles = StyleSheet.create({
   drawer: {

@@ -5,7 +5,6 @@ import React, {
   Linking,
   ListView,
   Modal,
-  StyleSheet,
   Text,
   TimePickerAndroid,
   ToastAndroid,
@@ -19,6 +18,8 @@ import ptBr from 'moment/locale/pt-br';
 import PointList from '../components/PointList';
 import Color from '../resource/color'; //Importa a palheta de cores
 import ActButton from '../components/common/action-button';
+import Header from '../components/common/Header';
+import * as HBStyleSheet from '../components/common/HBStyleSheet';
 import {getTime} from '../resource/timezonedb';
 import Touchable from '../components/common/Touchable';
 import PointViewModal from '../components/PointViewModal';
@@ -183,10 +184,28 @@ class Home extends Component {
       }
 
 
+        leftItem = {
+            title: 'Menu',
 
+            /**
+             * Ao passar um numero maior que zero muda
+             * o icone indicando que á notificações
+             */
+            icon: 0
+              ? require('../resource/img/hamburger-unread.png')
+              : require('../resource/img/hamburger.png'),
+            onPress: this.handleShowMenu.bind(this),
+          };
 
       return (
         <View style={styles.container}>
+
+          <Header
+            style={styles.header}
+            title="Hour bank"
+            leftItem={leftItem} >
+          </Header>
+
           <PointViewModal
             {...this.state.modal}
             onRequestClose={this._onModalClose.bind(this)}
@@ -212,7 +231,6 @@ class Home extends Component {
 
         </View>
       );
-
     }
 
     borderStylus(color) {
@@ -229,15 +247,20 @@ class Home extends Component {
             }
         ]);
     }
+
+    handleShowMenu() {
+      this.context.openDrawer();
+    }
 }
 
-var styles = StyleSheet.create({
+
+Home.contextTypes = {
+  openDrawer: React.PropTypes.func,
+};
+
+var styles = HBStyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    paddingTop: 24,
-    backgroundColor: 'white'
   },
   modalContainer: {
     flex: 1,
@@ -248,35 +271,39 @@ var styles = StyleSheet.create({
   innerContainer: {
     borderRadius: 10,
     alignItems: 'center',
-
+  },
+  header: {
+    android: {
+      backgroundColor: Color.color.PrimaryColor,
+    },
   },
   clockContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: Color.color.PrimaryColor
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Color.color.SecondText
   },
   clockText: {
-        color: 'white'
+    color: 'white'
   },
   date: {
       fontSize: 40,
   },
   pointListContainer: {
-      flex: 2,
-      padding: 5
+    flex: 2,
+    padding: 5
   },
   listView: {
-      backgroundColor: '#F5FCFF'
+    backgroundColor: '#F5FCFF'
   },
   listItem: {
-      flex: 1,
-      padding: 5
+    flex: 1,
+    padding: 5
   },
   actionButtonIcon: {
-        fontSize: 20,
-        height: 22,
-        color: 'white',
+    fontSize: 20,
+    height: 22,
+    color: 'white',
   },
   preview: {
     flex: 1,
