@@ -10,15 +10,12 @@ import React, {
   View
 } from 'react-native';
 import {connect} from 'react-redux';
-import MK, {MKButton, MKColor, MKSpinner} from 'react-native-material-kit';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 import ptBr from 'moment/locale/pt-br';
 
-import PointListItem from '../components/PointListItem';
-
-const SignOutButton = new MKButton.coloredButton().withBackgroundColor(MKColor.Indigo).withText('SAIR').build();
+import PointList from '../components/PointList';
 
 class Home extends Component {
     constructor(props) {
@@ -32,9 +29,6 @@ class Home extends Component {
         }
 
         this.onPress = this.onPress.bind(this);
-    }
-    componentWillMount() {
-
     }
 
     async hitPoint(type) {
@@ -73,27 +67,6 @@ class Home extends Component {
       Linking.openURL(url);
     }
 
-    renderRow(point, idSec, idRow) {
-      return (
-        <PointListItem
-          point={point}
-          onEditPress={()=>Alert.alert('editando...')}
-          onLocationPress={this.linkingLocation.bind(this, point)} />
-      );
-    }
-
-    renderFooter() {
-      let total = this.state.points.reduce((a, b) => {
-
-      }, 0);
-      return (
-        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-          <Text>Total:</Text>
-          <Text>teste</Text>
-        </View>
-      );
-    }
-
     render() {
 
         let lastPoint = this.state.points.slice(-1)[0];
@@ -114,23 +87,20 @@ class Home extends Component {
 
         return (
             <View style={styles.container}>
-              <View style={[styles.clockContainer, this.borderStylus('red')]}>
-                <Text style={styles.date}>{this.state.date.format('DD/MMMM/YYYY')}</Text>
-                <Text>{this.state.date.format('dddd')}</Text>
+              <View style={[styles.clockContainer]}>
+                <Text style={[styles.date, styles.clockText]}>{this.state.date.format('DD/MMMM/YYYY')}</Text>
+                <Text style={[styles.clockText]}>{this.state.date.format('dddd')}</Text>
               </View>
-              <View style={[styles.pointListContainer, this.borderStylus('blue')]}>
-                <ListView
-                  dataSource={this.state.dataSource}
-                  renderRow={this.renderRow.bind(this)}
-                  renderFooter={this.renderFooter.bind(this)}
-                  style={styles.listView}
-                />
+              <View style={[styles.pointListContainer]}>
+                <PointList
+                  points={this.state.points}
+                  onEditPress={()=>Alert.alert('editando...')}
+                  onLocationPress={this.linkingLocation.bind(this)}
+                  />
               </View>
 
               {/*Action Button*/}
-              <ActionButton buttonColor="#3C43E7" onPress={() => {
-                console.log("hi")
-              }}>
+              <ActionButton buttonColor="#3C43E7">
 
                 <ActionButton.Item
                   buttonColor={pointItem.color}
@@ -176,7 +146,11 @@ var styles = StyleSheet.create({
     clockContainer: {
       flex: 1,
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
+      backgroundColor: '#303F9F'
+    },
+    clockText: {
+        color: 'white'
     },
     date: {
       fontSize: 40,

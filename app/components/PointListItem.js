@@ -21,12 +21,12 @@ class PointListItem extends Component {
           <Text>{time}</Text>
         </View>
         <View style={styles.buttonsGroupWrapper}>
-          <Touchable onPress={this.props.onLocationPress}>
+          <Touchable onPress={()=>this.props.onLocationPress(this.props.point)}>
             <View style={styles.button}>
               <Icon name="location" style={[styles.icon, styles.iconLocation]} />
             </View>
           </Touchable>
-          <Touchable onPress={this.props.onEditPress}>
+          <Touchable onPress={()=>this.props.onLocationPress(this.props.point)}>
             <View style={styles.button}>
               <Icon name="edit" style={[styles.icon]} />
             </View>
