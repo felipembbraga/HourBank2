@@ -58,17 +58,13 @@ class SignUp extends Component {
 
               <Header
                 style={styles.header}
+                title="Cadasrtro"
                 leftItem={{
                   layout: 'icon',
                   title: 'Close',
                   icon: require('../../components/common/BackButtonIcon'),
                   onPress: this.dismiss.bind(this),
                 }}>
-                <View style={styles.headerContent}>
-                  <Text style={styles.title}>
-                    Cadastro
-                  </Text>
-                </View>
               </Header>
 
 
@@ -162,18 +158,6 @@ var styles = HBStyleSheet.create({
   header: {
     android: {
       backgroundColor: Color.color.PrimaryColor,
-    },
-  },
-  headerContent: {
-    android: {
-      flex: 1,
-      alignItems: 'flex-start',
-      justifyContent: 'center',
-    },
-    ios: {
-      height: 65,
-      alignItems: 'center',
-      justifyContent: 'center',
     },
   },
   title: {

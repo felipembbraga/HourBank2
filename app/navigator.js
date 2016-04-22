@@ -3,7 +3,6 @@ import React, {
   Component,
   Navigator,
   Platform,
-  PropTypes,
   StatusBar,
   StyleSheet,
   Text,
@@ -115,8 +114,8 @@ class HBNavigator extends Component {
 }
 
 HBNavigator.childContextTypes = {
-  addBackButtonListener: PropTypes.func,
-  removeBackButtonListener: PropTypes.func,
+  addBackButtonListener: React.PropTypes.func,
+  removeBackButtonListener: React.PropTypes.func,
 };
 
 function mapStateToProps(state) {

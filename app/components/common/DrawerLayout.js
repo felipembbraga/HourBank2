@@ -1,4 +1,7 @@
-import React, {Component, DrawerLayoutAndroid} from 'react-native';
+import React, {
+  Component,
+   DrawerLayoutAndroid
+ } from 'react-native';
 
 class DrawerLayout extends Component {
   _drawer: ?DrawerLayoutAndroid;
@@ -28,7 +31,7 @@ class DrawerLayout extends Component {
   }
 
   componentWillUnmount() {
-    //this.context.removeBackButtonListener(this.closeDrawer);
+    this.context.removeBackButtonListener(this.closeDrawer);
     this._drawer = null;
   }
 

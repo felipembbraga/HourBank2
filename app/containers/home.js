@@ -3,7 +3,6 @@ import React, {
   Component,
   Linking,
   ListView,
-  StyleSheet,
   Text,
   TimePickerAndroid,
   ToastAndroid,
@@ -17,6 +16,8 @@ import ptBr from 'moment/locale/pt-br';
 import PointList from '../components/PointList';
 import Color from '../resource/color'; //Importa a palheta de cores
 import ActButton from '../components/common/action-button';
+import Header from '../components/common/Header';
+import * as HBStyleSheet from '../components/common/HBStyleSheet';
 
 class Home extends Component {
     constructor(props) {
@@ -97,9 +98,30 @@ class Home extends Component {
           onPress: this.hitPoint.bind(this, pointItem.type)
         }
 
+        leftItem = {
+            title: 'Menu',
+
+            /**
+             * Ao passar um numero maior que zero muda
+             * o icone indicando que á notificações
+             */
+            icon: 0
+              ? require('../resource/img/hamburger-unread.png')
+              : require('../resource/img/hamburger.png'),
+            onPress: this.handleShowMenu.bind(this),
+          };
+
+
 
         return (
             <View style={styles.container}>
+
+              <Header
+                style={styles.header}
+                title="Houer bank"
+                leftItem={leftItem} >
+              </Header>
+
               <View style={[styles.clockContainer]}>
                 <Text style={[styles.date, styles.clockText]}>{this.state.date.format('DD/MMMM/YYYY')}</Text>
                 <Text style={[styles.clockText]}>{this.state.date.format('dddd')}</Text>
@@ -138,20 +160,33 @@ class Home extends Component {
             }
         ]);
     }
+
+    handleShowMenu() {
+      this.context.openDrawer();
+    }
 }
 
-var styles = StyleSheet.create({
+Home.contextTypes = {
+  openDrawer: React.PropTypes.func,
+};
+
+var styles = HBStyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'stretch',
         paddingTop: 24
     },
+    header: {
+      android: {
+        backgroundColor: Color.color.PrimaryColor,
+      },
+    },
     clockContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: Color.color.PrimaryColor
+      backgroundColor: Color.color.LightPrimaryColor
     },
     clockText: {
         color: 'white'

@@ -86,8 +86,8 @@ class HeaderAndroid extends React.Component {
     }
 
     const textColor = this.props.foreground === 'dark'
-      ? Colors.DarkPrimaryText
-      : 'white';
+      ? Color.color.DarkPrimaryText
+      : Color.color.TextIcons;
 
     let content;
     if (React.Children.count(this.props.children) > 0) {
@@ -131,8 +131,8 @@ class HeaderIOS extends React.Component {
 
   render() {
     const {leftItem, title, rightItem, foreground} = this.props;
-    const titleColor = foreground === 'dark' ? Colors.DarkPrimaryText : 'white';
-    const itemsColor = foreground === 'dark' ? Colors.PrimaryText : 'white';
+    const titleColor = foreground === 'dark' ? Color.color.DarkPrimaryText : 'white';
+    const itemsColor = foreground === 'dark' ? Color.color.PrimaryText : 'white';
 
     const content = React.Children.count(this.props.children) === 0
       ? <Text style={[styles.titleText, {color: titleColor}]}>
