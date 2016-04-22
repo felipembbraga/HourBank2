@@ -21,6 +21,7 @@ class ActButton extends Component {
 
 }
 
+/* Validação dos Props */
 ActButton.propTypes = {
   actionItems: PropTypes.arrayOf(
     PropTypes.shape({
