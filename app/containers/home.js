@@ -1,15 +1,17 @@
 import React, {
   Alert,
   Component,
+  Dimensions,
   Linking,
   ListView,
+  Modal,
   Text,
   TimePickerAndroid,
   ToastAndroid,
   View
 } from 'react-native';
+import Camera from 'react-native-camera';
 import {connect} from 'react-redux';
-
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 import ptBr from 'moment/locale/pt-br';
@@ -18,14 +20,21 @@ import Color from '../resource/color'; //Importa a palheta de cores
 import ActButton from '../components/common/action-button';
 import Header from '../components/common/Header';
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
+import {getTime} from '../resource/timezonedb';
+import Touchable from '../components/common/Touchable';
 
 class Home extends Component {
     constructor(props) {
         super(props);
         const dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
+            modal: {
+              animated: true,
+              modalVisible: false,
+              transparent: false
+            },
             user: null,
-            date: moment(),
+            currentDate: moment(),
             points: [],
             dataSource
         }
@@ -33,42 +42,69 @@ class Home extends Component {
         this.onPress = this.onPress.bind(this);
     }
 
-    async hitPoint(type) {
+    /**
+     * bater o ponto
+     * @param  {string} type -> tipo entrada/saída
+     * @return {void}
+     */
+    _hitPoint(type) {
 
-      let lastPoint = this.state.points.slice(-1)[0];
-      if(lastPoint && lastPoint.type === type) {
-        ToastAndroid.show('', ToastAndroid.SHORT);
-      }
+      this._setModalVisible(true);
+      // busca a localização
+      navigator.geolocation.getCurrentPosition(async (location) => {
+        try {
+          // busca a hora no timezonedb
+          let timezone = await getTime(location);
 
-      try{
-        const {action, minute, hour} = await TimePickerAndroid.open();
-        if(action === TimePickerAndroid.dismissedAction) {
-          ToastAndroid.show('Cancelado', ToastAndroid.SHORT);
-          return;
-        }
+          // converte o timestamp
+          let time = moment.unix(timezone.timestamp).add(3, 'hour');
 
-        const point = {type,hour,minute};
-        navigator.geolocation.getCurrentPosition((location) => {
-          point.location = location;
+          // extrai da data
+          let date = time.format('DD/MM/YYYY');
+
+          // gera o ponto
+          point = {
+            type,
+            location,
+            date,
+            hour: time.hour(),
+            minute: time.minute()
+          }
+
+          // salva no state
           let points = this.state.points.concat([point]);
           this.setState({
             points,
             dataSource : this.state.dataSource.cloneWithRows(points)
           });
-        }, () => {
-          ToastAndroid.show('Erro em receber o ponto geográfico', ToastAndroid.SHORT);
-        });
-
-      } catch ({code, message}) {
-        ToastAndroid.show('Erro ao processar o ponto', ToastAndroid.SHORT);
-      }
+        } catch ({error, message}) {
+          ToastAndroid.show('Erro em receber a hora da rede', ToastAndroid.SHORT);
+        }
+      }, () => {
+        ToastAndroid.show('Erro em receber o ponto geográfico', ToastAndroid.SHORT);
+      });
     }
 
-    linkingLocation(point) {
+    _linkingLocation(point) {
       let {latitude, longitude} = point.location.coords;
       let url = `https://www.google.com/maps/@${latitude},${longitude},18z`;
       // console.log(point.location.coords);
       Linking.openURL(url);
+    }
+
+    _setModalVisible(visible) {
+      this.setState({
+        modal: {
+          ...this.state.modal,
+          modalVisible: visible
+        }
+      })
+    }
+
+    takePicture() {
+    this.camera.capture()
+      .then((data) => console.log(data))
+      .catch(err => console.error(err));
     }
 
     render() {
@@ -95,7 +131,7 @@ class Home extends Component {
           buttonColor: pointItem.color,
           title: pointItem.title,
           iconName: pointItem.icon,
-          onPress: this.hitPoint.bind(this, pointItem.type)
+          onPress: this._hitPoint.bind(this, pointItem.type)
         }
 
         leftItem = {
@@ -118,19 +154,19 @@ class Home extends Component {
 
               <Header
                 style={styles.header}
-                title="Houer bank"
+                title="Hour bank"
                 leftItem={leftItem} >
               </Header>
 
               <View style={[styles.clockContainer]}>
-                <Text style={[styles.date, styles.clockText]}>{this.state.date.format('DD/MMMM/YYYY')}</Text>
-                <Text style={[styles.clockText]}>{this.state.date.format('dddd')}</Text>
+                <Text style={[styles.date, styles.clockText]}>{this.state.currentDate.format('DD/MMMM/YYYY')}</Text>
+                <Text style={[styles.clockText]}>{this.state.currentDate.format('dddd')}</Text>
               </View>
               <View style={[styles.pointListContainer]}>
                 <PointList
                   points={this.state.points}
                   onEditPress={()=>Alert.alert('editando...')}
-                  onLocationPress={this.linkingLocation.bind(this)}
+                  onLocationPress={this._linkingLocation.bind(this)}
                 />
               </View>
 
@@ -166,50 +202,71 @@ class Home extends Component {
     }
 }
 
+
 Home.contextTypes = {
   openDrawer: React.PropTypes.func,
 };
 
 var styles = HBStyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'stretch',
-        paddingTop: 24
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    paddingTop: 24,
+    backgroundColor: 'white'
+  },
+  innerContainer: {
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  header: {
+    android: {
+      backgroundColor: Color.color.PrimaryColor,
     },
-    header: {
-      android: {
-        backgroundColor: Color.color.PrimaryColor,
-      },
-    },
-    clockContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: Color.color.LightPrimaryColor
-    },
-    clockText: {
-        color: 'white'
-    },
-    date: {
+  },
+  clockContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Color.color.LightPrimaryColor
+  },
+  clockText: {
+    color: 'white'
+  },
+  date: {
       fontSize: 40,
-    },
-    pointListContainer: {
-      flex: 2,
-      padding: 5
-    },
-    listView: {
-      backgroundColor: '#F5FCFF'
-    },
-    listItem: {
-      flex: 1,
-      padding: 5
-    },
-    actionButtonIcon: {
-        fontSize: 20,
-        height: 22,
-        color: 'white',
-    }
+  },
+  pointListContainer: {
+    flex: 2,
+    padding: 5
+  },
+  listView: {
+    backgroundColor: '#F5FCFF'
+  },
+  listItem: {
+    flex: 1,
+    padding: 5
+  },
+  actionButtonIcon: {
+    fontSize: 20,
+    height: 22,
+    color: 'white',
+  },
+  preview: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    height: Dimensions.get('window').height,
+    width: Dimensions.get('window').width
+  },
+  capture: {
+    flex: 0,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    color: '#000',
+    padding: 10,
+    margin: 40
+  }
 });
 
 function mapStateToProps(state) {
