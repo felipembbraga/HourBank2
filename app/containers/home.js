@@ -210,10 +210,6 @@ Home.contextTypes = {
 var styles = HBStyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    paddingTop: 24,
-    backgroundColor: 'white'
   },
   innerContainer: {
     borderRadius: 10,

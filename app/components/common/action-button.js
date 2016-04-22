@@ -7,7 +7,7 @@ class ActButton extends Component {
 
   render() {
     return (
-        <ActionButton {...this.props} offsetX={20} offsetY={1}>
+        <ActionButton {...this.props} offsetX={20} offsetY={20}>
           {this.props.actionItems.map(item => {
             return (
               <ActionButton.Item key={item.title} buttonColor={item.buttonColor} title={item.title} onPress={() => {item.onPress()}}>
