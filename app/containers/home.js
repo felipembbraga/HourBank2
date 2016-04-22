@@ -16,6 +16,7 @@ import moment from 'moment';
 import ptBr from 'moment/locale/pt-br';
 
 import PointList from '../components/PointList';
+import ActButton from '../components/common/action-button';
 
 class Home extends Component {
     constructor(props) {
@@ -73,6 +74,7 @@ class Home extends Component {
         let pointItem = {
           color: '#1abc9c',
           title: 'Entrada',
+          icon: 'arrow-right-c',
           type: 'in'
         };
 
@@ -81,9 +83,18 @@ class Home extends Component {
           pointItem = {
             color: '#ff004c',
             title: 'Saída',
+            icon: 'arrow-left-c',
             type: 'out'
           };
         }
+
+        let actionItem = {
+          buttonColor: pointItem.color,
+          title: pointItem.title,
+          iconName: pointItem.icon,
+          onPress: this.hitPoint.bind(this, pointItem.type)
+        }
+
 
         return (
             <View style={styles.container}>
@@ -96,28 +107,28 @@ class Home extends Component {
                   points={this.state.points}
                   onEditPress={()=>Alert.alert('editando...')}
                   onLocationPress={this.linkingLocation.bind(this)}
-                  />
+                />
               </View>
 
               {/*Action Button*/}
-              <ActionButton buttonColor="#3C43E7">
+              <ActButton
+                buttonColor="#3C43E7"
+                actionItems={[actionItem]}
+              />
 
-                <ActionButton.Item
-                  buttonColor={pointItem.color}
-                  title={pointItem.title}
-                  onPress={this.hitPoint.bind(this, pointItem.type)}
-                >
-                  <Icon name="arrow-right-c" style={styles.actionButtonIcon}/>
-                </ActionButton.Item>
-
-              </ActionButton>
             </View>
         );
-        // return (
-        //   <DrawerLayout renderNavigationView={() => <View></View>}>
-        //     {view}
-        //   </DrawerLayout>
-        // );
+        // <ActionButton buttonColor="#3C43E7">
+        //
+        //   <ActionButton.Item
+        //     buttonColor={pointItem.color}
+        //     title={pointItem.title}
+        //     onPress={this.hitPoint.bind(this, pointItem.type)}
+        //   >
+        //     <Icon name="arrow-right-c" style={styles.actionButtonIcon}/>
+        //   </ActionButton.Item>
+        //
+        // </ActionButton>
     }
 
     borderStylus(color) {

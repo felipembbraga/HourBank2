@@ -18,7 +18,7 @@ class PointListItem extends Component {
           <Icon name={icon} style={[styles.icon, iconStyle]} />
         </View>
         <View style={styles.timeWrapper}>
-          <Text>{time}</Text>
+          <Text style={styles.time}>{time}</Text>
         </View>
         <View style={styles.buttonsGroupWrapper}>
           <Touchable onPress={()=>this.props.onLocationPress(this.props.point)}>
@@ -26,7 +26,7 @@ class PointListItem extends Component {
               <Icon name="location" style={[styles.icon, styles.iconLocation]} />
             </View>
           </Touchable>
-          <Touchable onPress={()=>this.props.onLocationPress(this.props.point)}>
+          <Touchable onPress={()=>this.props.onEditPress(this.props.point)}>
             <View style={styles.button}>
               <Icon name="edit" style={[styles.icon]} />
             </View>
@@ -62,6 +62,9 @@ const styles = StyleSheet.create({
   timeWrapper: {
     flex: 5,
     paddingHorizontal: 5
+  },
+  time: {
+    fontSize: 20
   },
 
   buttonsGroupWrapper: {
