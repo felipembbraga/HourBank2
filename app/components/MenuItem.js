@@ -1,7 +1,10 @@
-import React, {Component, StyleSheet, Text, View} from 'react-native';
+import React, { Component, StyleSheet, Text, View } from 'react-native';
 import Touchable from '../components/common/Touchable';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+/**
+ * Componente que renderiza cada linha do menu lateral
+ */
 class MenuItem extends Component {
   render() {
     let icon = "home";

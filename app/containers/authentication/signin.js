@@ -1,5 +1,4 @@
 import React, {
-    AsyncStorage,
     Component,
     StyleSheet,
     Text,
@@ -7,7 +6,8 @@ import React, {
     View,
     Image
 } from 'react-native';
-import MK, {MKButton, MKColor, MKSpinner} from 'react-native-material-kit';
+import ProgressBar from '../../components/common/ProgressBar';
+import MK, {MKButton, MKColor} from 'react-native-material-kit';
 import { connect } from 'react-redux';
 import {signIn, resetAuth} from '../../actions/authentication';
 
@@ -40,12 +40,9 @@ class SignIn extends Component {
     }
 
     render() {
-        if(this.props.user.isFetching) {
+        if(this.props.fetchData.isFetching) {
           return (
-            <View style={styles.container}>
-              <MKSpinner style={styles.spinner}/>
-              <Text style={styles.legendLabel}>Aguarde...</Text>
-            </View>
+            <ProgressBar text={this.props.fetchData.message} />
           )
         }
         return (
@@ -171,6 +168,7 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
+    fetchData: state.fetchData,
     user: state.user
   };
 }

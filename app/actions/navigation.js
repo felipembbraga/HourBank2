@@ -1,6 +1,6 @@
 import type { Action } from './types';
 
-type Tab = 'home' | 'my-schedule' | 'map' | 'notifications' | 'info';
+type Tab = 'home' | 'points';
 
 export function switchTab(tab: Tab): Action {
   return {

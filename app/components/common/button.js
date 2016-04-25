@@ -1,17 +1,33 @@
-import React, {Component, Text, StyleSheet, TouchableHighlight} from 'react-native';
+import React, {Component, Text, PropTypes, StyleSheet} from 'react-native';
+import Touchable from './Touchable';
 
+/**
+ * Componente botão
+ */
 class Button extends Component {
+
+  /**
+   * Renderiza o componente
+   * @return {ReactElement}
+   */
   render() {
     return (
-      <TouchableHighlight style={styles.button} underlayColor={'gray'} onPress={this.props.onPress}>
+      <Touchable style={styles.button} onPress={this.props.onPress}>
         <Text style={styles.buttonText}>
           {this.props.text}
         </Text>
-      </TouchableHighlight>
+      </Touchable>
     );
   }
 }
 
+// Props do componente
+Button.propTypes = {
+  text: PropTypes.string,
+  onPress: PropTypes.func
+}
+
+// Estilos do componente
 const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
@@ -29,4 +45,4 @@ const styles = StyleSheet.create({
   }
 });
 
-module.exports = Button;
+export default Button;

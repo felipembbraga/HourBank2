@@ -8,10 +8,25 @@ import React, {
   Text,
   View
 } from 'react-native';
+import moment from 'moment';
 
+/**
+ * Componente que abre um modal para visualizar a imagem do ponto registrado
+ *
+ */
 class PointViewModal extends Component {
+
+  /**
+   * Renderiza o componente
+   * @return {ReactElement}
+   */
   render() {
 
+    // pega a hora e o minuto do ponto
+    let {hour, minute} = this.props.point;
+
+    // formata a hora
+    let time = moment({hour, minute}).format('HH:mm');
     return (
       <Modal
         animated={false}
@@ -23,7 +38,7 @@ class PointViewModal extends Component {
           <View style={[styles.innerContainer]}>
             <Image source={this.props.point.picture} style={styles.image}>
               <Text style={styles.imageText}>
-                {this.props.point.date} {this.props.point.hour}:{this.props.point.minute}
+                {this.props.point.date} {time}
               </Text>
             </Image>
           </View>
@@ -34,6 +49,7 @@ class PointViewModal extends Component {
   }
 }
 
+// Props do componente
 PointViewModal.propTypes = {
   point: PropTypes.shape({
     type: PropTypes.string,
@@ -50,6 +66,7 @@ PointViewModal.propTypes = {
   onRequestClose: PropTypes.func.isRequired
 };
 
+// Valor inicial dos props
 PointViewModal.defaultProps = {
   isVisible: false,
   point: {
@@ -57,6 +74,7 @@ PointViewModal.defaultProps = {
   }
 }
 
+// Estilo do componente
 var styles = StyleSheet.create({
   container: {
     flex: 1,

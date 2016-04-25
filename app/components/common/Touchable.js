@@ -1,4 +1,3 @@
-
 import React, {
   Component,
   TouchableHighlight,
@@ -6,6 +5,9 @@ import React, {
   Platform,
 } from 'react-native';
 
+/**
+ * Componente que manipula eventos touchable para android e IOS
+ */
 class Touchable extends Component {
   render() {
     if(Platform.OS !== 'android')

@@ -12,7 +12,7 @@ import MK, {
   MKSpinner} from 'react-native-material-kit';
 
 import { connect } from 'react-redux';
-
+import ProgressBar from '../../components/common/ProgressBar';
 import * as HBStyleSheet from '../../components/common/HBStyleSheet';
 import {signUp, resetAuth} from '../../actions/authentication';
 import Header from '../../components/common/Header';
@@ -46,12 +46,9 @@ class SignUp extends Component {
 
 
     render() {
-      if(this.props.user.isFetching) {
+      if(this.props.fetchData.isFetching) {
         return (
-          <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
-            <MKSpinner style={styles.spinner}/>
-            <Text style={styles.legendLabel}>Aguarde...</Text>
-          </View>
+          <ProgressBar text={this.props.fetchData.message} />
         )
       }
         return (
@@ -146,6 +143,7 @@ class SignUp extends Component {
 
 function mapStateToProps(state) {
   return {
+    fetchData: state.fetchData,
     user: state.user
   };
 }

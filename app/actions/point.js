@@ -1,40 +1,53 @@
+import React, { ToastAndroid } from 'react-native';
+import moment from 'moment';
+import {initFetch, finishFetch} from './fetchData';
+import {getTime} from '../resource/timezonedb';
+import type { Action, ImageData, Point, PointType, ThunkAction } from './types'
 
-function fetchingGeoPoint() {
-  return {
-    type: 'FETCHING_GEO'
-  }
-}
 
-function errorGeoPoint(error) {
-  return {
-    type: 'ERROR_GEO',
-    payload: error
-  }
-}
-
-export function cleanErrorState() {
-  return {
-    type: 'CLEAN_ERROR_STATE'
-  }
-}
-
-function registerPoint(geolocation, kind) {
+function registerPoint(point: Point): Action {
   return {
     type: 'REGISTER_POINT',
-    payload: {
-      hour: new Date(),
-      geolocation,
-      kind
-    }
+    payload: point
   }
 }
 
-export function hitInPoint() {
+export function hitPoint(pointType: PointType, picture: ImageData): ThunkAction {
   return dispatch => {
-    dispatch(fetchingGeoPoint());
+    let time = moment();
+    dispatch(initFetch('Buscando Geolocalização...'));
     navigator.geolocation.getCurrentPosition(
-      (position) => { dispatch(registerPoint(position, 'getIn')) },
-      (error) => { dispatch(errorGeoPoint(error.message)) }
+      async (position) => {
+        try {
+          dispatch(initFetch('Buscando a hora da rede...'));
+
+          let timezone = await getTime(position);
+          console.log('aqui');
+          // converte o timestamp
+          let time = moment.unix(timezone.timestamp).add(3, 'hour');
+        } catch (e) {
+          ToastAndroid.show('Erro em receber a hora da rede.', ToastAndroid.SHORT);
+        } finally {
+          let date = time.format('DD/MM/YYYY');
+
+          let point = {
+            pointType,
+            location: position,
+            date,
+            hour: time.hour(),
+            minute: time.minute(),
+            picture
+          };
+
+          dispatch(registerPoint(point));
+          ToastAndroid.show('Ponto batido!', ToastAndroid.SHORT);
+          dispatch(finishFetch());
+        }
+      },
+      (error) => {
+        ToastAndroid.show('Erro em receber a sua localização.', ToastAndroid.SHORT);
+        dispatch(finishFetch());
+      }
     );
   }
 }

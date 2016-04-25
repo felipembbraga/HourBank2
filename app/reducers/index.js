@@ -1,10 +1,15 @@
 import {combineReducers} from 'redux';
-import user from './user';
+import fetchData from './fetchData';
 import navigation from './navigation';
+import officeHours from './point';
+import user from './user';
+
 
 const reducers = combineReducers({
-  user: user,
-  navigation: navigation
+  fetchData: fetchData,
+  navigation: navigation,
+  officeHours: officeHours,
+  user: user
 });
 
 export default reducers;

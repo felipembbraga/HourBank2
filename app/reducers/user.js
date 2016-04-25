@@ -2,7 +2,6 @@
 
 export type State = {
     isLoggedIn: boolean,
-    isFetching: boolean,
     didInvalidate: boolean,
     error: ? string,
     id: ? string,
@@ -14,7 +13,6 @@ export type State = {
 
 const initialState = {
     isLoggedIn: false,
-    isFetching: false,
     didInvalidate: false,
     error: null,
     id: null,
@@ -24,45 +22,27 @@ const initialState = {
 
 export default function user(state: State = initialState, action) {
     switch (action.type) {
-        case 'SIGNIN_REQUEST':
-            return {
-                ...state,
-                isFetching: true,
-                didInvalidate: false,
-                error: null
-            };
-        case 'SIGNIN_RESPONSE':
+        case 'SIGNIN':
             return {
                 ...state,
                 id: action.payload.session.uid,
                 email: action.payload.session.password.email,
-                isLoggedIn: true,
-                isFetching: false
+                isLoggedIn: true
             };
         case 'SIGNIN_ERROR':
             return {
                 ...state,
-                isFetching: false,
                 didInvalidate: true,
                 error: action.payload
             };
-        case 'SIGNUP_REQUEST':
+        case 'SIGNUP':
             return {
                 ...state,
-                isFetching: true,
-                didInvalidate: false,
-                error: null
-            };
-        case 'SIGNUP_RESPONSE':
-            return {
-                ...state,
-                isFetching: false,
                 isRegistered: true
             };
         case 'SIGNUP_ERROR':
             return {
                 ...state,
-                isFetching: false,
                 didInvalidate: true,
                 error: action.payload
             };

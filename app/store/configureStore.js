@@ -31,6 +31,8 @@ export default function configureStore(onComplete: ?() => void) {
 
   // Persiste os dados no AsyncStorage e chama a função de callback
   persistStore(store, {storage: AsyncStorage}, onComplete);
+
+
   if (isDebuggingInChrome) {
     window.store = store;
   }

@@ -1,12 +1,11 @@
 import React, {
-  Alert,
   Component,
   Dimensions,
   Linking,
   ListView,
   Modal,
+  ProgressBarAndroid,
   Text,
-  TimePickerAndroid,
   ToastAndroid,
   View
 } from 'react-native';
@@ -17,111 +16,131 @@ import moment from 'moment';
 import ptBr from 'moment/locale/pt-br';
 import PointList from '../components/PointList';
 import Color from '../resource/color'; //Importa a palheta de cores
-import ActButton from '../components/common/action-button';
+import ActButton from '../components/common/ActButton';
 import Header from '../components/common/Header';
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
 import {getTime} from '../resource/timezonedb';
 import Touchable from '../components/common/Touchable';
 import PointViewModal from '../components/PointViewModal';
-
+import ProgressBar from '../components/common/ProgressBar';
+import {hitPoint} from '../actions/point';
 var ImagePickerManager = require('NativeModules').ImagePickerManager;
 
+/**
+ * Container da tela Home
+ */
 class Home extends Component {
-    constructor(props) {
-        super(props);
-        this.cameraOptions = {
-          title: 'Select Avatar', // specify null or empty string to remove the title
-          cancelButtonTitle: 'Cancelar',
-          takePhotoButtonTitle: 'Capturar...', // specify null or empty string to remove this button
-          chooseFromLibraryButtonTitle: 'Buscar na biblioteca...', // specify null or empty string to remove this button
-          cameraType: 'front', // 'front' or 'back'
-          aspectX: 1, // android only - aspectX:aspectY, the cropping image's ratio of width to height
-          aspectY: 1, // android only - aspectX:aspectY, the cropping image's ratio of width to height
-          quality: 0.2, // 0 to 1, photos only
-          angle: 0, // android only, photos only
-          allowsEditing: true, // Built in functionality to resize/reposition the image after selection
-        };
 
-        const dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.state = {
-            modal: {
-              point: {},
-              isVisible: false,
-            },
-            user: null,
-            currentDate: moment(),
-            points: [],
-            dataSource,
-            isLoading: false
-        }
+  /**
+   * construtor do componente
+   * @param  {any} props
+   * @return {void}
+   */
+  constructor(props) {
+    super(props);
 
-        this.onPress = this.onPress.bind(this);
+    // opções do ImagePickerManager
+    this.cameraOptions = {
+      title: 'Select Avatar',
+      cancelButtonTitle: 'Cancelar',
+      takePhotoButtonTitle: 'Capturar...',
+      chooseFromLibraryButtonTitle: 'Buscar na biblioteca...',
+      cameraType: 'front',
+      aspectX: 1,
+      aspectY: 1,
+      quality: 0.2,
+      angle: 0,
+      allowsEditing: true
+    };
+
+    // instancia o dataSource do listView
+    const dataSource = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2
+    });
+
+
+    this.state = {
+        modal: {
+          point: {},
+          isVisible: false,
+        },
+        user: null,
+        currentDate: moment(),
+        points: [],
+        dataSource,
+        isLoading: false
     }
+
+    // Vincula as funções com o componente
+    this.onPress = this.onPress.bind(this);
+  }
 
     /**
      * bater o ponto
-     * @param  {string} type -> tipo entrada/saída
+     * @param  {string} type -> 'in' | 'out'
      * @return {void}
      */
     _hitPoint(type) {
-      this.setState({isLoading: true});
       let time = moment();
-      // busca a localização
-      navigator.geolocation.getCurrentPosition(async (location) => {
-        try {
-          // busca a hora no timezonedb
-          let timezone = await getTime(location);
-          // converte o timestamp
-          time = moment.unix(timezone.timestamp).add(3, 'hour');
+      // pega a Imagem
+      ImagePickerManager.launchCamera(this.cameraOptions, (response)  => {
 
-
-        } catch ({error, message}) {
-          this.setState({isLoading: false});
-          ToastAndroid.show('Erro em receber a hora da rede', ToastAndroid.SHORT);
-        } finally {
-          // pega a Imagem
-          ImagePickerManager.launchCamera(this.cameraOptions, (response)  => {
-            if(response.didCancel) {
-              this.setState({isLoading: false});
-              ToastAndroid.show('Cancelado.', ToastAndroid.SHORT);
-              return;
-            }
-            if(response.error) {
-              this.setState({isLoading: false});
-              ToastAndroid.show('Erro ao receber a foto', ToastAndroid.SHORT);
-              console.log(error);
-              return;
-            }
-
-
-            // extrai da data
-            let date = time.format('DD/MM/YYYY');
-
-            // gera o ponto
-            point = {
-              type,
-              location,
-              date,
-              hour: time.hour(),
-              minute: time.minute(),
-              // picture: {uri: 'data:image/jpeg;base64,' + response.data, isStatic: true}
-              picture: {uri: response.uri, isStatic: true}
-            }
-
-            // salva no state
-            let points = this.state.points.concat([point]);
-            this.setState({
-              isLoading: false,
-              points,
-              dataSource : this.state.dataSource.cloneWithRows(points)
-            });
-
-          });
+        // se o usuário cancelou, notifica na tela
+        if(response.didCancel) {
+          ToastAndroid.show('Cancelado.', ToastAndroid.SHORT);
+          return;
         }
-      }, () => {
-        this.setState({isLoading: false});
-        ToastAndroid.show('Erro em receber o ponto geográfico', ToastAndroid.SHORT);
+
+        // se deu erro, notifica na tela
+        if(response.error) {
+          ToastAndroid.show('Erro ao receber a foto', ToastAndroid.SHORT);
+          console.log(error);
+          return;
+        }
+        this.props.hitPoint(type, {uri: response.uri, isStatic: true});
+
+        // // extrai da data
+        // let date = time.format('DD/MM/YYYY');
+        //
+        // // gera o ponto
+        // point = {
+        //   type,
+        //   location,
+        //   date,
+        //   hour: time.hour(),
+        //   minute: time.minute(),
+        //   // picture: {uri: 'data:image/jpeg;base64,' + response.data, isStatic: true}
+        //   picture: {uri: response.uri, isStatic: true}
+        // }
+        //
+        // // salva no state
+        // let points = this.state.points.concat([point]);
+        // this.setState({
+        //   isLoading: false,
+        //   points,
+        //   dataSource : this.state.dataSource.cloneWithRows(points)
+        // });
+
       });
+      // busca a localização
+      // navigator.geolocation.getCurrentPosition(async (location) => {
+      //   try {
+      //     // busca a hora no timezonedb
+      //     let timezone = await getTime(location);
+      //     // converte o timestamp
+      //     time = moment.unix(timezone.timestamp).add(3, 'hour');
+      //
+      //
+      //   } catch ({error, message}) {
+      //     this.setState({isLoading: false});
+      //     ToastAndroid.show('Erro em receber a hora da rede', ToastAndroid.SHORT);
+      //   } finally {
+      //
+      //   }
+      // }, () => {
+      //   this.setState({isLoading: false});
+      //   ToastAndroid.show('Erro em receber o ponto geográfico', ToastAndroid.SHORT);
+      // });
     }
 
     _linkingLocation(point) {
@@ -132,30 +151,18 @@ class Home extends Component {
     }
 
     _viewPoint(point) {
-      this.setState({
-        modal: {
-          point: point,
-          isVisible: true
-        }
-      });
+
 
     }
 
     _onModalClose() {
-      this.setState({
-        modal: {
-          point: {},
-          isVisible: false
-        }
-      });
+
     }
 
     render() {
-      if(this.state.isLoading) {
+      if(this.props.fetchData.isFetching) {
         return (
-          <View style={styles.modalContainer}>
-            <MKSpinner style={styles.spinner}/>
-          </View>
+          <ProgressBar text={this.props.fetchData.message} />
         )
       }
 
@@ -217,7 +224,7 @@ class Home extends Component {
           </View>
           <View style={[styles.pointListContainer]}>
             <PointList
-              points={this.state.points}
+              points={[]}
               onViewPress={this._viewPoint.bind(this)}
               onLocationPress={this._linkingLocation.bind(this)}
             />
@@ -324,7 +331,16 @@ var styles = HBStyleSheet.create({
 });
 
 function mapStateToProps(state) {
-    return {user: state.user};
+    return {
+      fetchData: state.fetchData,
+      user: state.user
+    };
 }
 
-export default connect(mapStateToProps)(Home);
+function mapDispatchToProps(dispatch) {
+  return {
+    hitPoint: (pointType, picture) => dispatch(hitPoint(pointType, picture))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
