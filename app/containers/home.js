@@ -66,8 +66,6 @@ class Home extends Component {
         },
         user: null,
         currentDate: moment(),
-        points: [],
-        dataSource,
         isLoading: false
     }
 
@@ -151,12 +149,21 @@ class Home extends Component {
     }
 
     _viewPoint(point) {
-
-
+      this.setState({
+        modal: {
+          point: point,
+          isVisible: true
+        }
+      });
     }
 
     _onModalClose() {
-
+      this.setState({
+        modal: {
+          point: {},
+          isVisible: false
+        }
+      }); 
     }
 
     render() {
@@ -165,8 +172,14 @@ class Home extends Component {
           <ProgressBar text={this.props.fetchData.message} />
         )
       }
+      let points = [];
+      let date = this.state.currentDate.format('DD/MM/YYYY');
+      let officeHour = this.props.officeHours[date];
+      if(officeHour){
+        points = officeHour.points;
+      }
 
-      let lastPoint = this.state.points.slice(-1)[0];
+      let lastPoint = points.slice(-1)[0];
       let pointItem = {
         color: '#1abc9c',
         title: 'Entrada',
@@ -175,7 +188,7 @@ class Home extends Component {
       };
 
       // Se o último ponto foi de entrada, altera o botão para saída
-      if(lastPoint && lastPoint.type === 'in') {
+      if(lastPoint && lastPoint.pointType === 'in') {
         pointItem = {
           color: '#ff004c',
           title: 'Saída',
@@ -224,7 +237,7 @@ class Home extends Component {
           </View>
           <View style={[styles.pointListContainer]}>
             <PointList
-              points={[]}
+              points={points}
               onViewPress={this._viewPoint.bind(this)}
               onLocationPress={this._linkingLocation.bind(this)}
             />
@@ -333,6 +346,7 @@ var styles = HBStyleSheet.create({
 function mapStateToProps(state) {
     return {
       fetchData: state.fetchData,
+      officeHours: state.officeHours,
       user: state.user
     };
 }

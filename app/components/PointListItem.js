@@ -22,7 +22,7 @@ class PointListItem extends Component {
    * @return {ReactElement}
    */
   render() {
-
+    console.log(this.props.point);
     // pega a hora e o minuto do ponto
     let {hour, minute} = this.props.point;
 
@@ -30,10 +30,10 @@ class PointListItem extends Component {
     let time = moment({hour, minute}).format('HH:mm');
 
     // define o icone de acordo com o tipo de ponto (in/out)
-    let icon = `log-${this.props.point.type}`;
+    let icon = `log-${this.props.point.pointType}`;
 
     // define o estilo do icone de acordo com o tipo de ponto (in/out)
-    let iconStyle = this.props.point.type === 'in' ? styles.iconIn : styles.iconOut;
+    let iconStyle = this.props.point.pointType === 'in' ? styles.iconIn : styles.iconOut;
 
     // recebe estilo definido no props
     let style = this.props.style || {};
