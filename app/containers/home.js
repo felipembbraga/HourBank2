@@ -9,7 +9,6 @@ import React, {
   ToastAndroid,
   View
 } from 'react-native';
-import { MKSpinner } from 'react-native-material-kit';
 import {connect} from 'react-redux';
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
@@ -19,8 +18,6 @@ import Color from '../resource/color'; //Importa a palheta de cores
 import ActButton from '../components/common/ActButton';
 import Header from '../components/common/Header';
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
-import {getTime} from '../resource/timezonedb';
-import Touchable from '../components/common/Touchable';
 import PointViewModal from '../components/PointViewModal';
 import ProgressBar from '../components/common/ProgressBar';
 import {hitPoint} from '../actions/point';
@@ -95,52 +92,18 @@ class Home extends Component {
           console.log(error);
           return;
         }
+
+        // action de bater o Ponto
+        // @see app/actions/point.js
         this.props.hitPoint(type, {uri: response.uri, isStatic: true});
-
-        // // extrai da data
-        // let date = time.format('DD/MM/YYYY');
-        //
-        // // gera o ponto
-        // point = {
-        //   type,
-        //   location,
-        //   date,
-        //   hour: time.hour(),
-        //   minute: time.minute(),
-        //   // picture: {uri: 'data:image/jpeg;base64,' + response.data, isStatic: true}
-        //   picture: {uri: response.uri, isStatic: true}
-        // }
-        //
-        // // salva no state
-        // let points = this.state.points.concat([point]);
-        // this.setState({
-        //   isLoading: false,
-        //   points,
-        //   dataSource : this.state.dataSource.cloneWithRows(points)
-        // });
-
       });
-      // busca a localização
-      // navigator.geolocation.getCurrentPosition(async (location) => {
-      //   try {
-      //     // busca a hora no timezonedb
-      //     let timezone = await getTime(location);
-      //     // converte o timestamp
-      //     time = moment.unix(timezone.timestamp).add(3, 'hour');
-      //
-      //
-      //   } catch ({error, message}) {
-      //     this.setState({isLoading: false});
-      //     ToastAndroid.show('Erro em receber a hora da rede', ToastAndroid.SHORT);
-      //   } finally {
-      //
-      //   }
-      // }, () => {
-      //   this.setState({isLoading: false});
-      //   ToastAndroid.show('Erro em receber o ponto geográfico', ToastAndroid.SHORT);
-      // });
     }
 
+    /**
+     * Abre o mapa externamente e mostra o local onde o ponto foi batido
+     * @param  {Point} point
+     * @return {void}
+     */
     _linkingLocation(point) {
       let {latitude, longitude} = point.location.coords;
       let url = `https://www.google.com/maps/@${latitude},${longitude},18z`;
@@ -148,6 +111,11 @@ class Home extends Component {
       Linking.openURL(url);
     }
 
+    /**
+     * Abre o modal para visualizar a imagem do ponto
+     * @param  point
+     * @return {void}
+     */
     _viewPoint(point) {
       this.setState({
         modal: {
@@ -163,7 +131,7 @@ class Home extends Component {
           point: {},
           isVisible: false
         }
-      }); 
+      });
     }
 
     render() {
