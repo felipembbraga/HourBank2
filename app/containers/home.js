@@ -21,6 +21,7 @@ import * as HBStyleSheet from '../components/common/HBStyleSheet';
 import PointViewModal from '../components/PointViewModal';
 import ProgressBar from '../components/common/ProgressBar';
 import {hitPoint} from '../actions/point';
+import {pointsOfDaySelector, totalHoursOfDaySelector} from '../reselect/points';
 var ImagePickerManager = require('NativeModules').ImagePickerManager;
 
 /**
@@ -63,11 +64,19 @@ class Home extends Component {
         },
         user: null,
         currentDate: moment(),
-        isLoading: false
+        isFetching: false
     }
 
     // Vincula as funções com o componente
     this.onPress = this.onPress.bind(this);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if(!newProps.fetchData.isFetching) {
+      this.setState({
+        isFetching: false
+      });
+    }
   }
 
     /**
@@ -76,6 +85,10 @@ class Home extends Component {
      * @return {void}
      */
     _hitPoint(type) {
+
+      this.setState({
+        isFetching: true
+      });
       let time = moment();
       // pega a Imagem
       ImagePickerManager.launchCamera(this.cameraOptions, (response)  => {
@@ -95,7 +108,10 @@ class Home extends Component {
 
         // action de bater o Ponto
         // @see app/actions/point.js
-        this.props.hitPoint(type, {uri: response.uri, isStatic: true});
+        this.props.hitPoint(type, {
+          uri: response.uri,
+          data: 'data:image/jpeg;base64,' + response.data
+        }, this.props.user.id);
       });
     }
 
@@ -105,7 +121,7 @@ class Home extends Component {
      * @return {void}
      */
     _linkingLocation(point) {
-      let {latitude, longitude} = point.location.coords;
+      let {latitude, longitude} = point.location;
       let url = `https://www.google.com/maps/@${latitude},${longitude},18z`;
       // console.log(point.location.coords);
       Linking.openURL(url);
@@ -135,17 +151,12 @@ class Home extends Component {
     }
 
     render() {
-      if(this.props.fetchData.isFetching) {
+      if(this.state.isFetching) {
         return (
           <ProgressBar text={this.props.fetchData.message} />
         )
       }
-      let points = [];
-      let date = this.state.currentDate.format('DD/MM/YYYY');
-      let officeHour = this.props.officeHours[date];
-      if(officeHour){
-        points = officeHour.points;
-      }
+      let points = this.props.points;
 
       let lastPoint = points.slice(-1)[0];
       let pointItem = {
@@ -210,6 +221,9 @@ class Home extends Component {
               onLocationPress={this._linkingLocation.bind(this)}
             />
           </View>
+          <View style={styles.sumContainer}>
+            <Text>Total: {this.props.totalHours}</Text>
+          </View>
 
           {/*Action Button*/}
 
@@ -267,7 +281,7 @@ var styles = HBStyleSheet.create({
     },
   },
   clockContainer: {
-    flex: 1,
+    flex: 5,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Color.color.SecondText
@@ -279,15 +293,13 @@ var styles = HBStyleSheet.create({
       fontSize: 40,
   },
   pointListContainer: {
-    flex: 2,
-    padding: 5
+    flex: 9
   },
-  listView: {
-    backgroundColor: '#F5FCFF'
-  },
-  listItem: {
-    flex: 1,
-    padding: 5
+  sumContainer: {
+    flex: 3,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    backgroundColor: "rgb(219, 219, 219)"
   },
   actionButtonIcon: {
     fontSize: 20,
@@ -314,15 +326,17 @@ var styles = HBStyleSheet.create({
 function mapStateToProps(state) {
     return {
       fetchData: state.fetchData,
-      officeHours: state.officeHours,
+      points: pointsOfDaySelector(state),
+      totalHours: totalHoursOfDaySelector(state),
       user: state.user
     };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    hitPoint: (pointType, picture) => dispatch(hitPoint(pointType, picture))
+    hitPoint: (pointType, picture, userId) => dispatch(hitPoint(pointType, picture, userId))
   }
 }
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

@@ -25,6 +25,12 @@ class PointViewModal extends Component {
     // pega a hora e o minuto do ponto
     let {hour, minute} = this.props.point;
 
+    // pega a image do ponto
+    let image = {
+      uri: this.props.point.picture ? this.props.point.picture.uri : '',
+      isStatic: true
+    }
+
     // formata a hora
     let time = moment({hour, minute}).format('HH:mm');
     return (
@@ -36,7 +42,7 @@ class PointViewModal extends Component {
       >
         <View style={styles.container}>
           <View style={[styles.innerContainer]}>
-            <Image source={this.props.point.picture} style={styles.image}>
+            <Image source={image} style={styles.image}>
               <Text style={styles.imageText}>
                 {this.props.point.date} {time}
               </Text>
@@ -70,7 +76,9 @@ PointViewModal.propTypes = {
 PointViewModal.defaultProps = {
   isVisible: false,
   point: {
-    picture: {}
+    picture: {
+      uri: ''
+    }
   }
 }
 

@@ -22,7 +22,6 @@ class PointListItem extends Component {
    * @return {ReactElement}
    */
   render() {
-    console.log(this.props.point);
     // pega a hora e o minuto do ponto
     let {hour, minute} = this.props.point;
 
