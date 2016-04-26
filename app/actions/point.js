@@ -14,7 +14,6 @@ function registerPoint(point: Point): Action {
 
 export function hitPoint(pointType: PointType, picture: ImageData): ThunkAction {
   return dispatch => {
-    let time = moment();
     dispatch(initFetch('Buscando Geolocalização...'));
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -25,9 +24,7 @@ export function hitPoint(pointType: PointType, picture: ImageData): ThunkAction 
           console.log('aqui');
           // converte o timestamp
           let time = moment.unix(timezone.timestamp).add(3, 'hour');
-        } catch (e) {
-          ToastAndroid.show('Erro em receber a hora da rede.', ToastAndroid.SHORT);
-        } finally {
+
           let date = time.format('DD/MM/YYYY');
 
           let point = {
@@ -41,6 +38,9 @@ export function hitPoint(pointType: PointType, picture: ImageData): ThunkAction 
 
           dispatch(registerPoint(point));
           ToastAndroid.show('Ponto batido!', ToastAndroid.SHORT);
+        } catch (e) {
+          ToastAndroid.show('Erro em receber a hora da rede.', ToastAndroid.SHORT);
+        } finally {
           dispatch(finishFetch());
         }
       },
@@ -48,16 +48,6 @@ export function hitPoint(pointType: PointType, picture: ImageData): ThunkAction 
         ToastAndroid.show('Erro em receber a sua localização.', ToastAndroid.SHORT);
         dispatch(finishFetch());
       }
-    );
-  }
-}
-
-export function hitOutPoint() {
-  return dispatch => {
-    dispatch(fetchingGeoPoint());
-    navigator.geolocation.getCurrentPosition(
-      (position) => { dispatch(registerPoint(position, 'getOut')) },
-      (error) => { dispatch(errorGeoPoint(error.message)) }
     );
   }
 }
