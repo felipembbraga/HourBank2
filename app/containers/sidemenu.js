@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import DrawerLayout from '../components/common/DrawerLayout';
 import MenuItem from '../components/MenuItem';
 import Home from './home';
+import Profile from './profile';
 import { switchTab } from '../actions/navigation';
 
 /**
@@ -56,6 +57,8 @@ class SideMenu extends Component {
     switch (this.props.navigation.tab) {
       case 'home':
         return <Home navigator={this.props.navigator} />
+      case 'profile':
+        return <Profile navigator={this.props.navigator} />
       default:
         return <Home navigator={this.props.navigator} />
     }
@@ -112,10 +115,17 @@ class SideMenu extends Component {
           source={require('./img/menu_background.jpg')}>
           <Text style={styles.name}>Hour Bank</Text>
         </Image>
+
         <MenuItem
           title="Home"
           selected={this.props.tab === 'home'}
           onPress={this.onTabSelect.bind(this, 'home')} />
+
+        <MenuItem
+          title="Profile"
+          selected={this.props.tab === 'profile'}
+          onPress={this.onTabSelect.bind(this, 'profile')} />
+
         <MenuItem
           title="Sair"
           icon="android-exit"
