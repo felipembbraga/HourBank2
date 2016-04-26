@@ -9,7 +9,6 @@ import React, {
   ToastAndroid,
   View
 } from 'react-native';
-import { MKSpinner } from 'react-native-material-kit';
 import {connect} from 'react-redux';
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
@@ -19,11 +18,10 @@ import Color from '../resource/color'; //Importa a palheta de cores
 import ActButton from '../components/common/ActButton';
 import Header from '../components/common/Header';
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
-import {getTime} from '../resource/timezonedb';
-import Touchable from '../components/common/Touchable';
 import PointViewModal from '../components/PointViewModal';
 import ProgressBar from '../components/common/ProgressBar';
 import {hitPoint} from '../actions/point';
+import {pointsOfDaySelector, totalHoursOfDaySelector} from '../reselect/points';
 var ImagePickerManager = require('NativeModules').ImagePickerManager;
 
 /**
@@ -66,13 +64,19 @@ class Home extends Component {
         },
         user: null,
         currentDate: moment(),
-        points: [],
-        dataSource,
-        isLoading: false
+        isFetching: false
     }
 
     // Vincula as funções com o componente
     this.onPress = this.onPress.bind(this);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if(!newProps.fetchData.isFetching) {
+      this.setState({
+        isFetching: false
+      });
+    }
   }
 
     /**
@@ -81,6 +85,10 @@ class Home extends Component {
      * @return {void}
      */
     _hitPoint(type) {
+
+      this.setState({
+        isFetching: true
+      });
       let time = moment();
       // pega a Imagem
       ImagePickerManager.launchCamera(this.cameraOptions, (response)  => {
@@ -97,76 +105,60 @@ class Home extends Component {
           console.log(error);
           return;
         }
-        this.props.hitPoint(type, {uri: response.uri, isStatic: true});
 
-        // // extrai da data
-        // let date = time.format('DD/MM/YYYY');
-        //
-        // // gera o ponto
-        // point = {
-        //   type,
-        //   location,
-        //   date,
-        //   hour: time.hour(),
-        //   minute: time.minute(),
-        //   // picture: {uri: 'data:image/jpeg;base64,' + response.data, isStatic: true}
-        //   picture: {uri: response.uri, isStatic: true}
-        // }
-        //
-        // // salva no state
-        // let points = this.state.points.concat([point]);
-        // this.setState({
-        //   isLoading: false,
-        //   points,
-        //   dataSource : this.state.dataSource.cloneWithRows(points)
-        // });
-
+        // action de bater o Ponto
+        // @see app/actions/point.js
+        this.props.hitPoint(type, {
+          uri: response.uri,
+          data: 'data:image/jpeg;base64,' + response.data
+        }, this.props.user.id);
       });
-      // busca a localização
-      // navigator.geolocation.getCurrentPosition(async (location) => {
-      //   try {
-      //     // busca a hora no timezonedb
-      //     let timezone = await getTime(location);
-      //     // converte o timestamp
-      //     time = moment.unix(timezone.timestamp).add(3, 'hour');
-      //
-      //
-      //   } catch ({error, message}) {
-      //     this.setState({isLoading: false});
-      //     ToastAndroid.show('Erro em receber a hora da rede', ToastAndroid.SHORT);
-      //   } finally {
-      //
-      //   }
-      // }, () => {
-      //   this.setState({isLoading: false});
-      //   ToastAndroid.show('Erro em receber o ponto geográfico', ToastAndroid.SHORT);
-      // });
     }
 
+    /**
+     * Abre o mapa externamente e mostra o local onde o ponto foi batido
+     * @param  {Point} point
+     * @return {void}
+     */
     _linkingLocation(point) {
-      let {latitude, longitude} = point.location.coords;
+      let {latitude, longitude} = point.location;
       let url = `https://www.google.com/maps/@${latitude},${longitude},18z`;
       // console.log(point.location.coords);
       Linking.openURL(url);
     }
 
+    /**
+     * Abre o modal para visualizar a imagem do ponto
+     * @param  point
+     * @return {void}
+     */
     _viewPoint(point) {
-
-
+      this.setState({
+        modal: {
+          point: point,
+          isVisible: true
+        }
+      });
     }
 
     _onModalClose() {
-
+      this.setState({
+        modal: {
+          point: {},
+          isVisible: false
+        }
+      });
     }
 
     render() {
-      if(this.props.fetchData.isFetching) {
+      if(this.state.isFetching) {
         return (
           <ProgressBar text={this.props.fetchData.message} />
         )
       }
+      let points = this.props.points;
 
-      let lastPoint = this.state.points.slice(-1)[0];
+      let lastPoint = points.slice(-1)[0];
       let pointItem = {
         color: '#1abc9c',
         title: 'Entrada',
@@ -175,7 +167,7 @@ class Home extends Component {
       };
 
       // Se o último ponto foi de entrada, altera o botão para saída
-      if(lastPoint && lastPoint.type === 'in') {
+      if(lastPoint && lastPoint.pointType === 'in') {
         pointItem = {
           color: '#ff004c',
           title: 'Saída',
@@ -224,10 +216,13 @@ class Home extends Component {
           </View>
           <View style={[styles.pointListContainer]}>
             <PointList
-              points={[]}
+              points={points}
               onViewPress={this._viewPoint.bind(this)}
               onLocationPress={this._linkingLocation.bind(this)}
             />
+          </View>
+          <View style={styles.sumContainer}>
+            <Text>Total: {this.props.totalHours}</Text>
           </View>
 
           {/*Action Button*/}
@@ -286,7 +281,7 @@ var styles = HBStyleSheet.create({
     },
   },
   clockContainer: {
-    flex: 1,
+    flex: 5,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Color.color.SecondText
@@ -298,15 +293,13 @@ var styles = HBStyleSheet.create({
       fontSize: 40,
   },
   pointListContainer: {
-    flex: 2,
-    padding: 5
+    flex: 9
   },
-  listView: {
-    backgroundColor: '#F5FCFF'
-  },
-  listItem: {
-    flex: 1,
-    padding: 5
+  sumContainer: {
+    flex: 3,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    backgroundColor: "rgb(219, 219, 219)"
   },
   actionButtonIcon: {
     fontSize: 20,
@@ -333,14 +326,17 @@ var styles = HBStyleSheet.create({
 function mapStateToProps(state) {
     return {
       fetchData: state.fetchData,
+      points: pointsOfDaySelector(state),
+      totalHours: totalHoursOfDaySelector(state),
       user: state.user
     };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    hitPoint: (pointType, picture) => dispatch(hitPoint(pointType, picture))
+    hitPoint: (pointType, picture, userId) => dispatch(hitPoint(pointType, picture, userId))
   }
 }
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

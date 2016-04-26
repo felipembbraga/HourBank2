@@ -2,8 +2,10 @@ import React, { ToastAndroid } from 'react-native';
 import moment from 'moment';
 import {initFetch, finishFetch} from './fetchData';
 import {getTime} from '../resource/timezonedb';
+import getBaseRef from '../env';
 import type { Action, ImageData, Point, PointType, ThunkAction } from './types'
 
+const fbase = getBaseRef();
 
 function registerPoint(point: Point): Action {
   return {
@@ -12,34 +14,46 @@ function registerPoint(point: Point): Action {
   }
 }
 
-export function hitPoint(pointType: PointType, picture: ImageData): ThunkAction {
+export function loadPoints(date) {
+
+}
+
+export function hitPoint(pointType: PointType, picture: ImageData, userId: string): ThunkAction {
   return dispatch => {
     dispatch(initFetch('Buscando Geolocalização...'));
     navigator.geolocation.getCurrentPosition(
       async (position) => {
+        let {latitude, longitude} = position.coords;
         try {
           dispatch(initFetch('Buscando a hora da rede...'));
-
-          let timezone = await getTime(position);
-          console.log('aqui');
+          let timezone = await getTime({latitude, longitude});
           // converte o timestamp
           let time = moment.unix(timezone.timestamp).add(3, 'hour');
-
           let date = time.format('DD/MM/YYYY');
 
+          // firebase
+          let pointRef = fbase.child('points').push();
           let point = {
+            key: pointRef.key(),
             pointType,
-            location: position,
+            location: {latitude, longitude},
             date,
             hour: time.hour(),
             minute: time.minute(),
-            picture
+            picture,
+            userId
           };
 
-          dispatch(registerPoint(point));
-          ToastAndroid.show('Ponto batido!', ToastAndroid.SHORT);
+          try {
+            dispatch(initFetch('Salvando os dados...'));
+            await pointRef.set(point);
+            dispatch(registerPoint(point));
+            ToastAndroid.show('Ponto batido!', ToastAndroid.SHORT);
+          } catch (e) {
+            ToastAndroid.show('Erro ao salvar os dados.', ToastAndroid.SHORT);
+          }
         } catch (e) {
-          ToastAndroid.show('Erro em receber a hora da rede.', ToastAndroid.SHORT);
+          ToastAndroid.show('Erro ao receber a hora da rede.', ToastAndroid.SHORT);
         } finally {
           dispatch(finishFetch());
         }

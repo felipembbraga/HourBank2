@@ -56,7 +56,7 @@ class SignUp extends Component {
 
               <Header
                 style={styles.header}
-                title="Cadasrtro"
+                title="Cadastro"
                 leftItem={{
                   layout: 'icon',
                   title: 'Close',
@@ -88,7 +88,7 @@ class SignUp extends Component {
                   value={this.state.passwordConfirmation}
                   onChangeText={(text) => this.setState({passwordConfirmation: text})} />
 
-                <Text>{this.state.errorMessage}</Text>
+                <Text style={styles.msgError}>{this.state.errorMessage}</Text>
 
                 <View style={styles.buttonSubmit}>
                   <SignUpButton onPress={this.onPress}/>
@@ -207,6 +207,11 @@ var styles = HBStyleSheet.create({
   toolbar: {
     height: 56,
     backgroundColor: '#3F51B5'
+  },
+  msgError: {
+    color: 'red',
+    fontSize: 15,
+    alignSelf: 'center'
   }
 
 });

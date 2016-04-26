@@ -72,7 +72,7 @@ class SignIn extends Component {
                   onChangeText={(text) => this.setState({password: text})}
                 />
 
-                <Text>{this.props.user.error}</Text>
+              <Text style={styles.msgError} >{this.props.user.error}</Text>
 
                 <View style={styles.buttonSignin}>
                   <SignInButton onPress={this.onPress}/>
@@ -161,6 +161,10 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 10
+    },
+    msgError: {
+      color: 'red',
+      fontSize: 15
     }
 
 
