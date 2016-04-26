@@ -14,6 +14,10 @@ function registerPoint(point: Point): Action {
   }
 }
 
+export function loadPoints(date) {
+  
+}
+
 export function hitPoint(pointType: PointType, picture: ImageData, userId: string): ThunkAction {
   return dispatch => {
     dispatch(initFetch('Buscando Geolocalização...'));
@@ -23,10 +27,11 @@ export function hitPoint(pointType: PointType, picture: ImageData, userId: strin
         try {
           dispatch(initFetch('Buscando a hora da rede...'));
           let timezone = await getTime({latitude, longitude});
-          console.log('aqui');
           // converte o timestamp
           let time = moment.unix(timezone.timestamp).add(3, 'hour');
           let date = time.format('DD/MM/YYYY');
+
+          // firebase
           let pointRef = fbase.child('points').push();
           let point = {
             key: pointRef.key(),
@@ -41,7 +46,6 @@ export function hitPoint(pointType: PointType, picture: ImageData, userId: strin
           try {
             dispatch(initFetch('Salvando os dados...'));
             await pointRef.set(point);
-            console.log(point);
             dispatch(registerPoint(point));
             ToastAndroid.show('Ponto batido!', ToastAndroid.SHORT);
           } catch (e) {
