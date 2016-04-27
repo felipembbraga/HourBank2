@@ -9,6 +9,8 @@ import {connect} from 'react-redux';
 import Header from '../components/common/Header';
 import Color from '../resource/color'; //Importa a palheta de cores
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 class Profile extends Component {
 
@@ -65,13 +67,29 @@ class Profile extends Component {
               style={styles.placeholder}white
               source={require('../resource/img/will.jpg')}>
             </Image>
-            <Text style={styles.nameLabel}>
+            <Text style={styles.labelTitle}>
               Will Smith
             </Text>
+
           </View>
 
           <View style={styles.profileBody}>
+            <Text style={styles.label}>
+              Email
+            </Text>
+            <Text style={styles.labelInfo}>
+              {this.props.user.email}
+            </Text>
           </View>
+
+          <ActionButton
+            buttonColor={Color.color.AccentColor}
+            icon={<Icon
+              name="edit"
+              size={30}
+              color="#ccc" />} >
+
+          </ActionButton>
 
         </View>
 
@@ -98,11 +116,14 @@ var styles = HBStyleSheet.create({
     flex: 1
   },
   profileHeader: {
-    flex: 1.5,
-    backgroundColor: Color.color.LightPrimaryColor
+    flex: 1.7,
+    backgroundColor: Color.color.DimGray
   },
   profileBody: {
-    flex: 2
+    flex: 2,
+    paddingLeft: 20,
+    paddingRight: 20,
+    marginTop: 10
   },
   placeholder: {
     width: 170,
@@ -111,12 +132,19 @@ var styles = HBStyleSheet.create({
     marginTop: 10,
     borderRadius: 80,
   },
-  nameLabel: {
+  labelTitle: {
     fontSize: 30,
-    color: Color.color.PrimaryText,
-    alignSelf: 'center'
-  }
+    fontWeight: 'bold',
+    alignSelf: 'center',
 
+  },
+  label: {
+    fontSize: 16
+  },
+  labelInfo: {
+    fontSize: 20,
+    fontWeight: 'bold'
+  }
 });
 
 function mapStateToProps(state) {
