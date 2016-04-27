@@ -56,7 +56,7 @@ class SignUp extends Component {
 
               <Header
                 style={styles.header}
-                title="Cadasrtro"
+                title="Cadastro"
                 leftItem={{
                   layout: 'icon',
                   title: 'Close',
