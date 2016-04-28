@@ -13,7 +13,7 @@ const initialState = {};
 export default function officeHours(state: List = initialState, action: Action) {
   switch (action.type) {
     case 'REGISTER_POINT':
-
+      
       // pega a data do ponto
       let date = action.payload.date;
 
@@ -33,6 +33,9 @@ export default function officeHours(state: List = initialState, action: Action) 
 
       // cria uma nova data e insere a lista com o primeiro ponto do dia
       return newState.set(date, {points: [action.payload]}).toObject();
+
+    case 'RESET_AUTH':
+      return initialState;
     default:
       return state;
   }

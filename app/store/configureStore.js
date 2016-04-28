@@ -1,9 +1,10 @@
 import {AsyncStorage} from 'react-native';
-import {applyMiddleware, createStore} from 'redux';
+import {applyMiddleware, createStore, compose} from 'redux';
 import {persistStore, autoRehydrate} from 'redux-persist';
 import createLogger from 'redux-logger';
 import ReduxPromise from 'redux-promise';
 import thunkMiddleware from 'redux-thunk';
+import devTools from 'remote-redux-devtools';
 import reducers from '../reducers';
 
 // ativa o logger quando está em desenvolvimento
@@ -28,6 +29,11 @@ export default function configureStore(onComplete: ?() => void) {
 
   // Inicializa o store com autoRehydrate
   const store = autoRehydrate()(createHBStore)(reducers);
+  // const store = createStore(reducers, null, compose(
+  //   applyMiddleware(thunkMiddleware, ReduxPromise, logger),
+  //   autoRehydrate(),
+  //   devTools()
+  // ));
 
   // Persiste os dados no AsyncStorage e chama a função de callback
   persistStore(store, {storage: AsyncStorage}, onComplete);
