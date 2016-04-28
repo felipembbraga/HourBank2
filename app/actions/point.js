@@ -14,6 +14,7 @@ function registerPoint(point: Point): Action {
   }
 }
 
+
 export function loadPoints(date, userId) {
   return async dispatch => {
     dispatch(initFetch('Carregando seus dados...'));
@@ -36,6 +37,7 @@ export function loadPoints(date, userId) {
       dispatch(finishFetch());
     }
   }
+
 }
 
 export function hitPoint(pointType: PointType, picture: ImageData, userId: string): ThunkAction {
@@ -65,6 +67,7 @@ export function hitPoint(pointType: PointType, picture: ImageData, userId: strin
             minute: time.minute(),
             picture
           };
+
           try {
             dispatch(initFetch('Salvando os dados...'));
             await pointRef.set(point);
