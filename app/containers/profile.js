@@ -3,7 +3,8 @@ import React, {
   View,
   Text,
   StyleSheet,
-  Image
+  Image,
+  TextInput
 } from 'react-native';
 import {connect} from 'react-redux';
 import Header from '../components/common/Header';
@@ -11,14 +12,19 @@ import Color from '../resource/color'; //Importa a palheta de cores
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {changeProfile} from '../actions/profile';
 
 class Profile extends Component {
+
 
   constructor(props) {
     super(props);
 
     this.state = {
-      user: null
+      user: null,
+      edit: false,
+      name: this.props.user.name,
+      key: this.props.user.key
     };
 
   }
@@ -33,6 +39,16 @@ class Profile extends Component {
 
   componentWillReceiveProps(newProps) {
     console.log(newProps);
+  }
+
+  onPress() {
+    console.log(this.state.icon);
+    if ( ! this.state.edit) {
+      this.setState({edit: true});
+    } else {
+      this.setState({edit: false});
+      this.props.changeProfile(this.state);
+    }
   }
 
   render() {
@@ -50,7 +66,7 @@ class Profile extends Component {
         onPress: this.handleShowMenu.bind(this),
       };
 
-
+      if ( ! this.state.edit) {
     return (
       <View style={styles.container}>
 
@@ -65,10 +81,10 @@ class Profile extends Component {
           <View style={styles.profileHeader}>
             <Image
               style={styles.placeholder}white
-              source={require('../resource/img/will.jpg')}>
+              source={{uri: this.props.user.image}}>
             </Image>
             <Text style={styles.labelTitle}>
-              Will Smith
+              {this.state.name}
             </Text>
 
           </View>
@@ -84,6 +100,7 @@ class Profile extends Component {
 
           <ActionButton
             buttonColor={Color.color.AccentColor}
+            onPress={this.onPress.bind(this)}
             icon={<Icon
               name="edit"
               size={30}
@@ -95,6 +112,56 @@ class Profile extends Component {
 
       </View>
     );
+  } else {
+    return (
+      <View style={styles.container}>
+
+        <Header
+          style={styles.header}
+          title="Profile"
+          leftItem={leftItem} >
+        </Header>
+
+        <View style={styles.body}>
+
+          <View style={styles.profileHeader}>
+            <Image
+              style={styles.placeholder}white
+              source={{uri: this.props.user.image}}>
+            </Image>
+
+            <TextInput
+              style={styles.input}
+              value={this.state.name}
+              onChangeText={(text) => this.setState({name: text})}
+            />
+
+          </View>
+
+          <View style={styles.profileBody}>
+            <Text style={styles.label}>
+              Email
+            </Text>
+            <Text style={styles.labelInfo}>
+              {this.props.user.email}
+            </Text>
+          </View>
+
+          <ActionButton
+            buttonColor={Color.color.AccentColor}
+            onPress={this.onPress.bind(this)}
+            icon={<Icon
+              name="check"
+              size={30}
+              color="#ccc" />} >
+
+          </ActionButton>
+
+        </View>
+
+      </View>
+    );
+  }
   }
 
 }
@@ -133,6 +200,7 @@ var styles = HBStyleSheet.create({
     borderRadius: 80,
   },
   labelTitle: {
+    marginTop: 20,
     fontSize: 30,
     fontWeight: 'bold',
     alignSelf: 'center',
@@ -144,6 +212,19 @@ var styles = HBStyleSheet.create({
   labelInfo: {
     fontSize: 20,
     fontWeight: 'bold'
+  },
+  input: {
+      padding: 4,
+      height: 40,
+      borderColor: 'gray',
+      borderWidth: 1,
+      borderRadius: 5,
+      fontSize: 30,
+      marginLeft: 40,
+      marginRight: 40,
+      marginTop: 20,
+      margin: 5,
+      alignSelf: 'center'
   }
 });
 
@@ -153,9 +234,9 @@ function mapStateToProps(state) {
     };
 }
 
-// function mapDispatchToProps(dispatch) {
-//   return ;
-// }
+function mapDispatchToProps(dispatch) {
+  return { changeProfile: (profile) => {dispatch(changeProfile(profile))} };
+}
 
 
-export default connect(mapStateToProps)(Profile);
+export default connect(mapStateToProps,mapDispatchToProps)(Profile);

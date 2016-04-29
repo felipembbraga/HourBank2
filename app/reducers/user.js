@@ -6,7 +6,10 @@ export type State = {
     error: ? string,
     id: ? string,
     email: ? string,
-    registered: boolean
+    registered: boolean,
+    name: ? String,
+    image: ? String,
+    key: ? String
 };
 
 
@@ -17,7 +20,10 @@ const initialState = {
     error: null,
     id: null,
     email: null,
-    isRegistered: false
+    isRegistered: false,
+    name: null,
+    image: null,
+    key: null
 };
 
 export default function user(state: State = initialState, action) {
@@ -25,8 +31,11 @@ export default function user(state: State = initialState, action) {
         case 'SIGNIN':
             return {
                 ...state,
-                id: action.payload.session.uid,
-                email: action.payload.session.password.email,
+                id: action.payload.session.user.uid,
+                key: action.payload.session.user.key,
+                email: action.payload.session.user.email,
+                name: action.payload.session.profile.name,
+                image: action.payload.session.user.image,
                 isLoggedIn: true
             };
         case 'SIGNIN_ERROR':
@@ -48,6 +57,12 @@ export default function user(state: State = initialState, action) {
             };
         case 'RESET_AUTH':
             return initialState;
+        case 'CHANGE_PROFILE':
+            console.log(action.payload.session);
+            return {
+              ...state,
+              name: action.payload.session.name
+            };
         default:
             return state;
 

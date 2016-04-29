@@ -124,6 +124,7 @@ class SideMenu extends Component {
 
         <MenuItem
           title="Profile"
+          icon="person"
           selected={this.props.tab === 'profile'}
           onPress={this.onTabSelect.bind(this, 'profile')} />
 
