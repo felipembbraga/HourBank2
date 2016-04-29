@@ -14,7 +14,29 @@ function registerPoint(point: Point): Action {
   }
 }
 
-export function loadPoints(date) {
+
+export function loadPoints(date, userId) {
+  return async dispatch => {
+    dispatch(initFetch('Carregando seus dados...'));
+    let key = date.format('YYYY/MM/DD');
+    console.log(key);
+    try {
+      let path = `points/${userId}/${key}`
+      let snapshot = await fbase.child(path)
+        .once('value');
+
+      if(snapshot.exists()) {
+        let points = snapshot.val();
+        for(key in snapshot.val()) {
+          dispatch(registerPoint(points[key]));
+        }
+      };
+    } catch (e) {
+      console.log(e.message);
+    } finally {
+      dispatch(finishFetch());
+    }
+  }
 
 }
 
@@ -29,10 +51,13 @@ export function hitPoint(pointType: PointType, picture: ImageData, userId: strin
           let timezone = await getTime({latitude, longitude});
           // converte o timestamp
           let time = moment.unix(timezone.timestamp).add(3, 'hour');
-          let date = time.format('DD/MM/YYYY');
+          let date = time.format('YYYY/MM/DD');
 
           // firebase
-          let pointRef = fbase.child('points').push();
+          let path = `points/${userId}/${date}`
+          let pointRef = fbase.child(path).push();
+
+
           let point = {
             key: pointRef.key(),
             pointType,
@@ -40,8 +65,7 @@ export function hitPoint(pointType: PointType, picture: ImageData, userId: strin
             date,
             hour: time.hour(),
             minute: time.minute(),
-            picture,
-            userId
+            picture
           };
 
           try {
@@ -53,6 +77,7 @@ export function hitPoint(pointType: PointType, picture: ImageData, userId: strin
             ToastAndroid.show('Erro ao salvar os dados.', ToastAndroid.SHORT);
           }
         } catch (e) {
+          console.log(e.message);
           ToastAndroid.show('Erro ao receber a hora da rede.', ToastAndroid.SHORT);
         } finally {
           dispatch(finishFetch());

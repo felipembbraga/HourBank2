@@ -12,6 +12,7 @@ import MenuItem from '../components/MenuItem';
 import Home from './home';
 import Profile from './profile';
 import { switchTab } from '../actions/navigation';
+import { loadPoints } from '../actions/point';
 
 /**
  * Componente principal para aplicar o DrawerLayout e os conteúdos do mesmo

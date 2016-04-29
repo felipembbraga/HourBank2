@@ -8,10 +8,16 @@ export const pointsOfDaySelector = createSelector(
   officeHoursSelector,
   currentDateSelector,
   (officeHours, currentDate) => {
+    let arr = [];
     if(officeHours[currentDate]){
       return officeHours[currentDate].points;
     }
-    return [];
+    let days = Object.keys(officeHours);
+    for(let i = 0; i < days; i++) {
+      arr = arr.concat(officeHours[days[i]]);
+    }
+
+    return arr;
   }
 );
 

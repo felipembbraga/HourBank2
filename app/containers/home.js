@@ -20,7 +20,7 @@ import Header from '../components/common/Header';
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
 import PointViewModal from '../components/PointViewModal';
 import ProgressBar from '../components/common/ProgressBar';
-import {hitPoint} from '../actions/point';
+import {hitPoint, loadPoints} from '../actions/point';
 import {pointsOfDaySelector, totalHoursOfDaySelector} from '../reselect/points';
 var ImagePickerManager = require('NativeModules').ImagePickerManager;
 
@@ -71,6 +71,13 @@ class Home extends Component {
     this.onPress = this.onPress.bind(this);
   }
 
+  componentDidMount() {
+    this.setState({
+      isFetching: true,
+    });
+    this.props.loadPoints(this.state.currentDate, this.props.user.id);
+  }
+
   componentWillReceiveProps(newProps) {
     if(!newProps.fetchData.isFetching) {
       this.setState({
@@ -96,6 +103,9 @@ class Home extends Component {
         // se o usuário cancelou, notifica na tela
         if(response.didCancel) {
           ToastAndroid.show('Cancelado.', ToastAndroid.SHORT);
+          this.setState({
+            isFetching: false
+          });
           return;
         }
 
@@ -103,6 +113,9 @@ class Home extends Component {
         if(response.error) {
           ToastAndroid.show('Erro ao receber a foto', ToastAndroid.SHORT);
           console.log(error);
+          this.setState({
+            isFetching: false
+          });
           return;
         }
 
@@ -334,7 +347,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    hitPoint: (pointType, picture, userId) => dispatch(hitPoint(pointType, picture, userId))
+    hitPoint: (pointType, picture, userId) => dispatch(hitPoint(pointType, picture, userId)),
+    loadPoints: (date, userId) => dispatch(loadPoints(date, userId))
   }
 }
 
