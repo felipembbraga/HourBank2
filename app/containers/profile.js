@@ -51,6 +51,10 @@ class Profile extends Component {
     }
   }
 
+  takePicture() {
+    console.log('tira foto');
+  }
+
   render() {
 
     leftItem = {
@@ -79,17 +83,22 @@ class Profile extends Component {
         <View style={styles.body}>
 
           <View style={styles.profileHeader}>
+
             <Image
-              style={styles.placeholder}white
+              style={styles.placeholder}
+              reiszeMode="container"
               source={{uri: this.props.user.image}}>
             </Image>
-            <Text style={styles.labelTitle}>
-              {this.state.name}
-            </Text>
 
           </View>
 
           <View style={styles.profileBody}>
+            <Text style={styles.label}>
+              Nome
+            </Text>
+            <Text style={styles.labelInfo}>
+              {this.state.name}
+            </Text>
             <Text style={styles.label}>
               Email
             </Text>
@@ -125,20 +134,36 @@ class Profile extends Component {
         <View style={styles.body}>
 
           <View style={styles.profileHeader}>
+
             <Image
-              style={styles.placeholder}white
+              style={styles.placeholder}
+              reiszeMode="container"
               source={{uri: this.props.user.image}}>
             </Image>
 
-            <TextInput
-              style={styles.input}
-              value={this.state.name}
-              onChangeText={(text) => this.setState({name: text})}
-            />
+            <View style={styles.imageButton}>
+              <Icon.Button
+                name="photo-camera"
+                size={30}
+                onPress={this.takePicture.bind(this)}
+                backgroundColor={Color.color.AccentColor}>
+                 <Text style={{fontFamily: 'Arial', fontSize: 15, color: 'white'}}>Tirar foto</Text>
+              </Icon.Button>
+            </View>
 
           </View>
 
           <View style={styles.profileBody}>
+            <Text style={styles.label}>
+              Nome
+            </Text>
+
+            <TextInput
+              style={styles.input}
+              value={this.state.name}
+              autoCapitalize="words"
+              onChangeText={(text) => this.setState({name: text})}
+            />
             <Text style={styles.label}>
               Email
             </Text>
@@ -193,38 +218,27 @@ var styles = HBStyleSheet.create({
     marginTop: 10
   },
   placeholder: {
-    width: 170,
-    height: 170,
-    alignSelf: 'center',
-    marginTop: 10,
-    borderRadius: 80,
-  },
-  labelTitle: {
-    marginTop: 20,
-    fontSize: 30,
-    fontWeight: 'bold',
-    alignSelf: 'center',
-
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0
   },
   label: {
+    marginTop: 10,
     fontSize: 16
   },
   labelInfo: {
+    marginTop: 5,
     fontSize: 20,
     fontWeight: 'bold'
   },
   input: {
-      padding: 4,
-      height: 40,
-      borderColor: 'gray',
-      borderWidth: 1,
-      borderRadius: 5,
-      fontSize: 30,
-      marginLeft: 40,
-      marginRight: 40,
-      marginTop: 20,
-      margin: 5,
-      alignSelf: 'center'
+      fontSize: 20
+  },
+  imageButton: {
+    alignSelf: 'center',
+    marginTop: 100
   }
 });
 
