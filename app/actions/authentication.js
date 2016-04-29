@@ -89,12 +89,39 @@ export function signIn(user: User): ThunkAction {
     try {
       // faz o login no firebase e dispara a action de signin
       let authData = await baseRef.authWithPassword(user);
-      dispatch(signin(authData));
+
+
+
+      let userRef = baseRef.child('profile');
+      userRef.orderByChild("userId").equalTo(authData.uid).on("child_added", function(snapshot) {
+
+        let mUser = {
+          key: snapshot.val().key,
+          uid: authData.uid,
+          email: authData.password.email,
+          image: authData.password.profileImageURL
+        }
+
+        let mProfile = {
+          name: snapshot.val().name
+        }
+
+        let mData = {
+          user: mUser,
+          profile: mProfile
+        }
+
+        dispatch(signin(mData));
+        dispatch(finishFetch());
+
+      }, function (errorObject) {
+        dispatch(error(errorObject));
+        dispatch(finishFetch());
+      });
+
     } catch (err) {
       // Dispara o erro, caso não complete o login
       dispatch(error(err));
-    } finally {
-      // remove a tela de loading
       dispatch(finishFetch());
     }
 
@@ -110,7 +137,7 @@ export function signIn(user: User): ThunkAction {
 export function signUp(user: User): ThunkAction {
     return async (dispatch) => {
 
-        // cria as actions
+        //cria as actions
         const signup = authResponse('SIGNUP');
         const error = authError('SIGNUP_ERROR');
 
@@ -120,6 +147,20 @@ export function signUp(user: User): ThunkAction {
         try {
           // faz o registro no firebase e dispara a action de signup
           let authData = await baseRef.createUser(user);
+
+          // Cria o filho do tipo profile
+          let userRef = baseRef.child('profile').push();
+
+          // Define como sera o objeto profile a ser salvo
+          let profile = {
+            key: userRef.key(),
+            name: user.name,
+            userId: authData.uid
+          };
+
+          // Salva o profile
+          await userRef.set(profile);
+
           dispatch(signup(authData));
         } catch (err) {
           // Dispara o erro, caso não complete o registro

@@ -2,8 +2,14 @@
 // usuário
 export type User = {
   email: string,
-  password: string
+  password: string,
+  image: ImageData
 }
+
+export type Profile = {
+    name: string
+}
+
 
 export type PointType = 'in' | 'out';
 

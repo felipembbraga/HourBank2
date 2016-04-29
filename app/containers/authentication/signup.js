@@ -34,6 +34,7 @@ class SignUp extends Component {
         this.state = {
             email: '',
             password: '',
+            name: '',
             passwordConfirmation: '',
             errorMessage: ''
         };
@@ -67,6 +68,12 @@ class SignUp extends Component {
 
 
               <View style={styles.body}>
+                <Text style={styles.label}>Nome:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={this.state.name}
+                  onChangeText={(text) => this.setState({name: text})} />
+
                 <Text style={styles.label}>Email:</Text>
                 <TextInput
                   style={styles.input}
@@ -206,7 +213,7 @@ var styles = HBStyleSheet.create({
   },
   toolbar: {
     height: 56,
-    backgroundColor: '#3F51B5'
+    backgroundColor: Color.color.PrimaryColor
   },
   msgError: {
     color: 'red',
