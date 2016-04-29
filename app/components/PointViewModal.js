@@ -27,7 +27,7 @@ class PointViewModal extends Component {
 
     // pega a image do ponto
     let image = {
-      uri: this.props.point.picture ? this.props.point.picture.uri : '',
+      uri: this.props.point.picture ? this.props.point.picture.data : '',
       isStatic: true
     }
 

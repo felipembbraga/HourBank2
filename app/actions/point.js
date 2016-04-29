@@ -18,16 +18,14 @@ function registerPoint(point: Point): Action {
 export function loadPoints(date, userId) {
   return async dispatch => {
     dispatch(initFetch('Carregando seus dados...'));
-    let key = date.format('YYYY/MM/DD');
-    console.log(key);
     try {
-      let path = `points/${userId}/${key}`
+      let path = `points/${userId}/${date}`
       let snapshot = await fbase.child(path)
         .once('value');
-
+      console.log(path);
       if(snapshot.exists()) {
         let points = snapshot.val();
-        for(key in snapshot.val()) {
+        for(let key in points) {
           dispatch(registerPoint(points[key]));
         }
       };

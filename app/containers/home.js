@@ -1,5 +1,6 @@
 import React, {
   Component,
+  DatePickerAndroid,
   Dimensions,
   Linking,
   ListView,
@@ -18,9 +19,11 @@ import Color from '../resource/color'; //Importa a palheta de cores
 import ActButton from '../components/common/ActButton';
 import Header from '../components/common/Header';
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
+import DateView from '../components/DateView';
 import PointViewModal from '../components/PointViewModal';
 import ProgressBar from '../components/common/ProgressBar';
 import {hitPoint, loadPoints} from '../actions/point';
+import {setCurrentDate} from '../actions/currentDate';
 import {pointsOfDaySelector, totalHoursOfDaySelector} from '../reselect/points';
 var ImagePickerManager = require('NativeModules').ImagePickerManager;
 
@@ -63,8 +66,8 @@ class Home extends Component {
           isVisible: false,
         },
         user: null,
-        currentDate: moment(),
-        isFetching: false
+        isFetching: false,
+        currentDate: moment()
     }
 
     // Vincula as funções com o componente
@@ -72,17 +75,21 @@ class Home extends Component {
   }
 
   componentDidMount() {
+    this.props.setCurrentDate(this.state.currentDate.format('YYYY/MM/DD'));
     this.setState({
       isFetching: true,
     });
-    this.props.loadPoints(this.state.currentDate, this.props.user.id);
+    this.props.loadPoints(this.props.currentDate, this.props.user.id);
   }
 
   componentWillReceiveProps(newProps) {
-    if(!newProps.fetchData.isFetching) {
-      this.setState({
-        isFetching: false
-      });
+    this.setState({
+      isFetching: newProps.fetchData.isFetching
+    });
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if(prevProps.currentDate !== this.props.currentDate) {
+       this.props.loadPoints(this.props.currentDate, this.props.user.id);
     }
   }
 
@@ -163,6 +170,31 @@ class Home extends Component {
       });
     }
 
+    _onRefresh() {
+      this.props.loadPoints(this.props.currentDate, this.props.user.id);
+    }
+
+    async _onDatePress() {
+      try {
+
+        options = {
+          date: this.state.currentDate.toDate(),
+          maxDate: moment().toDate()
+        };
+
+        const {action, year, month, day} = await DatePickerAndroid.open(options);
+        if (action !== DatePickerAndroid.dismissedAction) {
+          let date = moment({year, month, day});
+          this.props.setCurrentDate(date.format('YYYY/MM/DD'));
+          this.setState({
+            currentDate: date
+          });
+        }
+      } catch (e) {
+
+      }
+    }
+
     render() {
       if(this.state.isFetching) {
         return (
@@ -210,13 +242,21 @@ class Home extends Component {
             onPress: this.handleShowMenu.bind(this),
           };
 
+          rightItem = {
+            title: 'Atualizar',
+            icon: require('../resource/img/refresh@3x.png'),
+            onPress: this._onRefresh.bind(this)
+          }
+
       return (
         <View style={styles.container}>
 
           <Header
             style={styles.header}
             title="Hour bank"
-            leftItem={leftItem} >
+            leftItem={leftItem}
+            rightItem={rightItem}
+          >
           </Header>
 
           <PointViewModal
@@ -224,8 +264,7 @@ class Home extends Component {
             onRequestClose={this._onModalClose.bind(this)}
           />
           <View style={[styles.clockContainer]}>
-            <Text style={[styles.date, styles.clockText]}>{this.state.currentDate.format('DD/MMMM/YYYY')}</Text>
-            <Text style={[styles.clockText]}>{this.state.currentDate.format('dddd')}</Text>
+            <DateView date={this.state.currentDate} onPress={this._onDatePress.bind(this)}/>
           </View>
           <View style={[styles.pointListContainer]}>
             <PointList
@@ -294,16 +333,7 @@ var styles = HBStyleSheet.create({
     },
   },
   clockContainer: {
-    flex: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Color.color.SecondText
-  },
-  clockText: {
-    color: 'white'
-  },
-  date: {
-      fontSize: 40,
+    flex: 5
   },
   pointListContainer: {
     flex: 9
@@ -338,6 +368,7 @@ var styles = HBStyleSheet.create({
 
 function mapStateToProps(state) {
     return {
+      currentDate: state.currentDate,
       fetchData: state.fetchData,
       points: pointsOfDaySelector(state),
       totalHours: totalHoursOfDaySelector(state),
@@ -348,7 +379,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     hitPoint: (pointType, picture, userId) => dispatch(hitPoint(pointType, picture, userId)),
-    loadPoints: (date, userId) => dispatch(loadPoints(date, userId))
+    loadPoints: (date, userId) => dispatch(loadPoints(date, userId)),
+    setCurrentDate: (date) => dispatch(setCurrentDate(date))
   }
 }
 
