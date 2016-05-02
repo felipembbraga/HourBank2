@@ -237,7 +237,7 @@ class Profile extends Component {
             <Image
               style={styles.placeholderEdit}
               reiszeMode="container"
-              source={{uri: this.state.image.data, isStatic: true}} >
+              source= {mSource}>
 
             </Image>
             <View style={styles.imageButton}>
