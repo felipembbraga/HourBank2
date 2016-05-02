@@ -1,7 +1,6 @@
 import React, {
   Component,
   Image,
-  Linking,
   Modal,
   PropTypes,
   StyleSheet,

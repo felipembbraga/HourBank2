@@ -43,13 +43,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Color.color.SecondText
+    backgroundColor: Color.color.LightPrimaryColor
   },
   text: {
     color: 'white'
   },
   date: {
-      fontSize: 40,
+      fontSize: 30,
   }
 });
 

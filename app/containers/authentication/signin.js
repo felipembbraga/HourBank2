@@ -27,7 +27,8 @@ class SignIn extends Component {
         super(props);
         this.state = {
             email: '',
-            password: ''
+            password: '',
+            isFetching: false
         };
         // this.baseRef = BaseRef;
 
@@ -39,8 +40,14 @@ class SignIn extends Component {
         this.props.resetAuth();
     }
 
+    componentWillReceiveProps(newProps) {
+      this.setState({
+        isFetching: newProps.fetchData.isFetching
+      });
+    }
+
     render() {
-        if(this.props.fetchData.isFetching) {
+        if(this.state.isFetching) {
           return (
             <ProgressBar text={this.props.fetchData.message} />
           )

@@ -36,7 +36,8 @@ class SignUp extends Component {
             password: '',
             name: '',
             passwordConfirmation: '',
-            errorMessage: ''
+            errorMessage: '',
+            isFetching: false
         };
         this.onPress = this.onPress.bind(this);
     }
@@ -45,9 +46,15 @@ class SignUp extends Component {
         this.props.resetAuth();
     }
 
+    componentWillReceiveProps(newProps) {
+      this.setState({
+        isFetching: newProps.fetchData.isFetching
+      });
+    }
+
 
     render() {
-      if(this.props.fetchData.isFetching) {
+      if(this.state.isFetching) {
         return (
           <ProgressBar text={this.props.fetchData.message} />
         )
