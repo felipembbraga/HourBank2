@@ -17,6 +17,18 @@ import ptBr from 'moment/locale/pt-br';
  */
 class PointListItem extends Component {
 
+  _onViewPress() {
+    this.context.onViewPress && this.context.onViewPress(this.props.point)
+  }
+
+  _onEditPress() {
+    this.context.onEditPress && this.context.onEditPress(this.props.point)
+  }
+
+  _onLocationPress() {
+    this.context.onLocationPress && this.context.onLocationPress(this.props.point)
+  }
+
   /**
    * Renderiza o componente
    * @return {ReactElement}
@@ -36,6 +48,8 @@ class PointListItem extends Component {
 
     // recebe estilo definido no props
     let style = this.props.style || {};
+    let edited = this.props.point.edited ? '*': '';
+
     return (
       <View style={[styles.container, ...style]}>
 
@@ -46,7 +60,7 @@ class PointListItem extends Component {
 
         {/*Hora*/}
         <View style={styles.timeWrapper}>
-          <Text style={styles.time}>{time}</Text>
+          <Text style={styles.time}>{time}{edited}</Text>
         </View>
 
         {/*Botões*/}
@@ -54,7 +68,7 @@ class PointListItem extends Component {
 
           {/*botão de localização*/}
           <Touchable
-            onPress={()=>this.props.onLocationPress(this.props.point)}
+            onPress={this._onLocationPress.bind(this)}
           >
             <View style={styles.button}>
               <Icon
@@ -62,10 +76,17 @@ class PointListItem extends Component {
                 style={[styles.icon, styles.iconLocation]} />
             </View>
           </Touchable>
+          <Touchable
+            onPress={this._onEditPress.bind(this)}
+          >
+            <View style={styles.button}>
+              <Icon name="edit" style={styles.icon} />
+            </View>
+          </Touchable>
 
           {/*Botão de visualização*/}
           <Touchable
-            onPress={()=>this.props.onViewPress(this.props.point)}
+            onPress={this._onViewPress.bind(this)}
           >
             <View style={styles.button}>
               <Icon name="eye" style={styles.icon} />
@@ -79,9 +100,13 @@ class PointListItem extends Component {
 
 // Props do componente
 PointListItem.propTypes = {
-  point: PropTypes.object.isRequired,
-  onViewPress: PropTypes.func.isRequired,
-  onLocationPress: PropTypes.func.isRequired
+  point: PropTypes.object.isRequired
+}
+
+PointListItem.contextTypes = {
+  onEditPress: PropTypes.func,
+  onViewPress: PropTypes.func,
+  onLocationPress: PropTypes.func,
 }
 
 // Estilos do componente
@@ -116,7 +141,7 @@ const styles = StyleSheet.create({
   },
 
   buttonsGroupWrapper: {
-    flex: 2,
+    flex: 3,
     flexDirection: 'row',
     justifyContent: 'space-around'
   },

@@ -57,10 +57,7 @@ class PointList extends Component {
    */
   renderRow(point, idSec, idRow) {
     return (
-      <PointListItem
-        point={point}
-        onViewPress={this.props.onViewPress}
-        onLocationPress={this.props.onLocationPress} />
+      <PointListItem key={point.key} point={point} />
     );
   }
 
@@ -112,9 +109,7 @@ class PointList extends Component {
 
 // Props do componente
 PointList.propTypes = {
-  points: PropTypes.array.isRequired,
-  onViewPress: PropTypes.func.isRequired,
-  onLocationPress: PropTypes.func.isRequired
+  points: PropTypes.array.isRequired
 }
 
 // Estilo do componente

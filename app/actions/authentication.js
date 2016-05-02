@@ -90,10 +90,8 @@ export function signIn(user: User): ThunkAction {
       // faz o login no firebase e dispara a action de signin
       let authData = await baseRef.authWithPassword(user);
 
-
-
       let userRef = baseRef.child('profile');
-      userRef.orderByChild("userId").equalTo(authData.uid).on("child_added", function(snapshot) {
+      userRef.orderByChild("userId").equalTo(authData.uid).once("value", function(snapshot) {
 
         let mUser = {
           key: snapshot.val().key,

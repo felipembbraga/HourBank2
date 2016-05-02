@@ -1,11 +1,14 @@
 import React, {
+  Alert,
   Component,
+  DatePickerAndroid,
   Dimensions,
   Linking,
-  ListView,
   Modal,
   ProgressBarAndroid,
+  PropTypes,
   Text,
+  TimePickerAndroid,
   ToastAndroid,
   View
 } from 'react-native';
@@ -18,9 +21,12 @@ import Color from '../resource/color'; //Importa a palheta de cores
 import ActButton from '../components/common/ActButton';
 import Header from '../components/common/Header';
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
+import DateView from '../components/DateView';
 import PointViewModal from '../components/PointViewModal';
+import PointEditModal from '../components/PointEditModal';
 import ProgressBar from '../components/common/ProgressBar';
-import {hitPoint, loadPoints} from '../actions/point';
+import {editPoint, hitPoint, loadPoints} from '../actions/point';
+import {setCurrentDate} from '../actions/currentDate';
 import {pointsOfDaySelector, totalHoursOfDaySelector} from '../reselect/points';
 var ImagePickerManager = require('NativeModules').ImagePickerManager;
 
@@ -39,7 +45,6 @@ class Home extends Component {
 
     // opções do ImagePickerManager
     this.cameraOptions = {
-      title: 'Select Avatar',
       cancelButtonTitle: 'Cancelar',
       takePhotoButtonTitle: 'Capturar...',
       chooseFromLibraryButtonTitle: 'Buscar na biblioteca...',
@@ -51,38 +56,78 @@ class Home extends Component {
       allowsEditing: true
     };
 
-    // instancia o dataSource do listView
-    const dataSource = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2
-    });
-
-
     this.state = {
-        modal: {
+        viewModal: {
           point: {},
           isVisible: false,
         },
+        editModal: {
+          point: {},
+          isVisible: false
+        },
         user: null,
-        currentDate: moment(),
-        isFetching: false
+        isFetching: false,
+        currentDate: moment()
     }
 
     // Vincula as funções com o componente
     this.onPress = this.onPress.bind(this);
+    this._viewPoint = this._viewPoint.bind(this);
+    this._viewEditPoint = this._viewEditPoint.bind(this);
+    this._linkingLocation = this._linkingLocation.bind(this);
+    this._onPointEditModalClose = this._onPointEditModalClose.bind(this);
   }
 
+  /**
+   * retorna os valores de context para os componentes filhos
+   * @return {Object}
+   */
+  getChildContext() {
+    return {
+      onEditPress: this._viewEditPoint,
+      onViewPress: this._viewPoint,
+      onLocationPress: this._linkingLocation
+    }
+  }
+
+  /**
+   * Component Lifecycle Method
+   * @return {void}
+   */
   componentDidMount() {
+
+    // Altera a data atual no store do redux
+    this.props.setCurrentDate(this.state.currentDate.format('YYYY/MM/DD'));
+
+    // Carrega os pontos do dia
     this.setState({
       isFetching: true,
     });
-    this.props.loadPoints(this.state.currentDate, this.props.user.id);
+    this.props.loadPoints(this.props.currentDate, this.props.user.id);
   }
 
+  /**
+   * Component Lifecycle Method
+   * @param  {any} newProps -> props com as alterações
+   * @return {void}
+   */
   componentWillReceiveProps(newProps) {
-    if(!newProps.fetchData.isFetching) {
-      this.setState({
-        isFetching: false
-      });
+    this.setState({
+      isFetching: newProps.fetchData.isFetching
+    });
+  }
+
+  /**
+   * Component Lifecycle Method
+   * @param  {any} prevProps -> props antes das alterações
+   * @param  {any} prevState -> state antes das alterações
+   * @return {void}
+   */
+  componentDidUpdate(prevProps, prevState) {
+
+    // Se o dia atual foi alterado, carrega os pontos novamente
+    if(prevProps.currentDate !== this.props.currentDate) {
+       this.props.loadPoints(this.props.currentDate, this.props.user.id);
     }
   }
 
@@ -112,7 +157,7 @@ class Home extends Component {
         // se deu erro, notifica na tela
         if(response.error) {
           ToastAndroid.show('Erro ao receber a foto', ToastAndroid.SHORT);
-          console.log(error);
+          console.log(response.error);
           this.setState({
             isFetching: false
           });
@@ -141,13 +186,22 @@ class Home extends Component {
     }
 
     /**
-     * Abre o modal para visualizar a imagem do ponto
+     * Abre o viewModal para visualizar a imagem do ponto
      * @param  point
      * @return {void}
      */
     _viewPoint(point) {
       this.setState({
-        modal: {
+        viewModal: {
+          point: point,
+          isVisible: true
+        }
+      });
+    }
+
+    _viewEditPoint(point) {
+      this.setState({
+        editModal: {
           point: point,
           isVisible: true
         }
@@ -156,11 +210,51 @@ class Home extends Component {
 
     _onModalClose() {
       this.setState({
-        modal: {
+        viewModal: {
           point: {},
           isVisible: false
         }
       });
+    }
+
+    _onPointEditModalClose(point, observation) {
+      console.log(point);
+      this.setState({
+        editModal: {
+          isVisible: false,
+          point: {}
+        }
+      });
+      if(observation) {
+        this.props.editPoint(point, observation, this.props.user.id);
+      } else {
+        ToastAndroid.show('Cancelado.', ToastAndroid.SHORT);
+      }
+    }
+
+    _onRefresh() {
+      this.props.loadPoints(this.props.currentDate, this.props.user.id);
+    }
+
+    async _onDatePress() {
+      try {
+
+        options = {
+          date: this.state.currentDate.toDate(),
+          maxDate: moment().toDate()
+        };
+
+        const {action, year, month, day} = await DatePickerAndroid.open(options);
+        if (action !== DatePickerAndroid.dismissedAction) {
+          let date = moment({year, month, day});
+          this.props.setCurrentDate(date.format('YYYY/MM/DD'));
+          this.setState({
+            currentDate: date
+          });
+        }
+      } catch (e) {
+
+      }
     }
 
     render() {
@@ -210,29 +304,36 @@ class Home extends Component {
             onPress: this.handleShowMenu.bind(this),
           };
 
+          rightItem = {
+            title: 'Atualizar',
+            icon: require('../resource/img/refresh@3x.png'),
+            onPress: this._onRefresh.bind(this)
+          }
+
       return (
         <View style={styles.container}>
 
           <Header
             style={styles.header}
             title="Hour bank"
-            leftItem={leftItem} >
+            leftItem={leftItem}
+            rightItem={rightItem}
+          >
           </Header>
 
           <PointViewModal
-            {...this.state.modal}
+            {...this.state.viewModal}
             onRequestClose={this._onModalClose.bind(this)}
           />
+          <PointEditModal
+            {...this.state.editModal}
+            onRequestClose={this._onPointEditModalClose}
+          />
           <View style={[styles.clockContainer]}>
-            <Text style={[styles.date, styles.clockText]}>{this.state.currentDate.format('DD/MMMM/YYYY')}</Text>
-            <Text style={[styles.clockText]}>{this.state.currentDate.format('dddd')}</Text>
+            <DateView date={this.state.currentDate} onPress={this._onDatePress.bind(this)}/>
           </View>
           <View style={[styles.pointListContainer]}>
-            <PointList
-              points={points}
-              onViewPress={this._viewPoint.bind(this)}
-              onLocationPress={this._linkingLocation.bind(this)}
-            />
+            <PointList points={points} />
           </View>
           <View style={styles.sumContainer}>
             <Text>Total: {this.props.totalHours}</Text>
@@ -271,22 +372,18 @@ class Home extends Component {
 
 
 Home.contextTypes = {
-  openDrawer: React.PropTypes.func,
+  openDrawer: PropTypes.func
 };
+
+Home.childContextTypes = {
+  onEditPress: PropTypes.func,
+  onViewPress: PropTypes.func,
+  onLocationPress: PropTypes.func
+}
 
 var styles = HBStyleSheet.create({
   container: {
     flex: 1,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20
-  },
-  innerContainer: {
-    borderRadius: 10,
-    alignItems: 'center',
   },
   header: {
     android: {
@@ -294,16 +391,7 @@ var styles = HBStyleSheet.create({
     },
   },
   clockContainer: {
-    flex: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Color.color.SecondText
-  },
-  clockText: {
-    color: 'white'
-  },
-  date: {
-      fontSize: 40,
+    flex: 4
   },
   pointListContainer: {
     flex: 9
@@ -313,31 +401,12 @@ var styles = HBStyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-start',
     backgroundColor: "rgb(219, 219, 219)"
-  },
-  actionButtonIcon: {
-    fontSize: 20,
-    height: 22,
-    color: 'white',
-  },
-  preview: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    height: Dimensions.get('window').height,
-    width: Dimensions.get('window').width
-  },
-  capture: {
-    flex: 0,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    color: '#000',
-    padding: 10,
-    margin: 40
   }
 });
 
 function mapStateToProps(state) {
     return {
+      currentDate: state.currentDate,
       fetchData: state.fetchData,
       points: pointsOfDaySelector(state),
       totalHours: totalHoursOfDaySelector(state),
@@ -347,10 +416,11 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
+    editPoint: (point, observation, userId) => dispatch(editPoint(point, observation, userId)),
     hitPoint: (pointType, picture, userId) => dispatch(hitPoint(pointType, picture, userId)),
-    loadPoints: (date, userId) => dispatch(loadPoints(date, userId))
+    loadPoints: (date, userId) => dispatch(loadPoints(date, userId)),
+    setCurrentDate: (date) => dispatch(setCurrentDate(date))
   }
 }
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
