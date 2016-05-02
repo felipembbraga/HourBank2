@@ -74,10 +74,6 @@ class Profile extends Component {
 
   takePicture() {
 
-    this.setState({
-      isFetching: true
-    });
-
     let time = moment();
     // pega a Imagem
     ImagePickerManager.showImagePicker(this.cameraOptions, (response)  => {
