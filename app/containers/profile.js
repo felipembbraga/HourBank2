@@ -3,8 +3,10 @@ import React, {
   View,
   Text,
   StyleSheet,
+  ProgressBarAndroid,
   Image,
-  TextInput
+  TextInput,
+  ToastAndroid,
 } from 'react-native';
 import {connect} from 'react-redux';
 import Header from '../components/common/Header';
@@ -12,7 +14,10 @@ import Color from '../resource/color'; //Importa a palheta de cores
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {changeProfile} from '../actions/profile';
+import ProgressBar from '../components/common/ProgressBar';
+import {changeProfile, changeImageUser} from '../actions/profile';
+import moment from 'moment';
+var ImagePickerManager = require('NativeModules').ImagePickerManager;
 
 class Profile extends Component {
 
@@ -20,11 +25,25 @@ class Profile extends Component {
   constructor(props) {
     super(props);
 
+    // opções do ImagePickerManager
+    this.cameraOptions = {
+      title: 'Selecionar imagem',
+      cancelButtonTitle: 'Cancelar',
+      takePhotoButtonTitle: 'Capturar...',
+      chooseFromLibraryButtonTitle: 'Buscar na biblioteca...',
+      cameraType: 'front',
+      aspectX: 1,
+      aspectY: 1,
+      quality: 0.2,
+      angle: 0,
+      allowsEditing: true
+    };
+
     this.state = {
       user: null,
       edit: false,
       name: this.props.user.name,
-      key: this.props.user.key
+      isFetching: false
     };
 
   }
@@ -47,12 +66,53 @@ class Profile extends Component {
       this.setState({edit: true});
     } else {
       this.setState({edit: false});
-      this.props.changeProfile(this.state);
+      this.props.changeProfile(this.props.user.id, this.state);
     }
   }
 
   takePicture() {
-    console.log('tira foto');
+
+      console.log('tirando foto');
+
+          // this.setState({
+          //   isFetching: true
+          // });
+
+          let time = moment();
+          // pega a Imagem
+          ImagePickerManager.showImagePicker(this.cameraOptions, (response)  => {
+
+            // se o usuário cancelou, notifica na tela
+            if(response.didCancel) {
+              ToastAndroid.show('Cancelado.', ToastAndroid.SHORT);
+              this.setState({
+                isFetching: false
+              });
+              return;
+            }
+
+            // se deu erro, notifica na tela
+            if(response.error) {
+              ToastAndroid.show('Erro ao receber a foto', ToastAndroid.SHORT);
+              console.log(error);
+              this.setState({
+                isFetching: false
+              });
+              return;
+            }
+
+
+            console.log(response);
+            console.log(this.props.user.id);
+            // action de bater o Ponto
+            // @see app/actions/point.js
+            this.props.changeImageUser(
+              this.props.user.id, {
+              uri: response.uri,
+              data: 'data:image/jpeg;base64,' + response.data
+              } , this.state);
+
+          });
   }
 
   render() {
@@ -70,56 +130,57 @@ class Profile extends Component {
         onPress: this.handleShowMenu.bind(this),
       };
 
+      if(this.state.isFetching) {
+        return (
+          <ProgressBar text={this.props.fetchData.message} />
+        )
+      }
+
       if ( ! this.state.edit) {
-    return (
-      <View style={styles.container}>
+        return (
+          <View style={styles.container}>
+            <Header
+              style={styles.header}
+              title="Profile"
+              leftItem={leftItem} >
+            </Header>
+            <View style={styles.body}>
 
-        <Header
-          style={styles.header}
-          title="Profile"
-          leftItem={leftItem} >
-        </Header>
+              <View style={styles.profileHeader}>
+                <Image
+                  style={styles.placeholder}
+                  reiszeMode="container"
+                  source={{uri: this.props.user.image}}>
+                </Image>
+              </View>
 
-        <View style={styles.body}>
+              <View style={styles.profileBody}>
+                <Text style={styles.label}>
+                  Nome
+                </Text>
+                <Text style={styles.labelInfo}>
+                  {this.state.name}
+                </Text>
+                <Text style={styles.label}>
+                  Email
+                </Text>
+                <Text style={styles.labelInfo}>
+                  {this.props.user.email}
+                </Text>
+              </View>
 
-          <View style={styles.profileHeader}>
+              <ActionButton
+                buttonColor={Color.color.AccentColor}
+                onPress={this.onPress.bind(this)}
+                icon={<Icon
+                  name="edit"
+                  size={30}
+                  color="#ccc" />} >
 
-            <Image
-              style={styles.placeholder}
-              reiszeMode="container"
-              source={{uri: this.props.user.image}}>
-            </Image>
+              </ActionButton>
 
+            </View>
           </View>
-
-          <View style={styles.profileBody}>
-            <Text style={styles.label}>
-              Nome
-            </Text>
-            <Text style={styles.labelInfo}>
-              {this.state.name}
-            </Text>
-            <Text style={styles.label}>
-              Email
-            </Text>
-            <Text style={styles.labelInfo}>
-              {this.props.user.email}
-            </Text>
-          </View>
-
-          <ActionButton
-            buttonColor={Color.color.AccentColor}
-            onPress={this.onPress.bind(this)}
-            icon={<Icon
-              name="edit"
-              size={30}
-              color="#ccc" />} >
-
-          </ActionButton>
-
-        </View>
-
-      </View>
     );
   } else {
     return (
@@ -134,13 +195,11 @@ class Profile extends Component {
         <View style={styles.body}>
 
           <View style={styles.profileHeader}>
-
             <Image
               style={styles.placeholder}
               reiszeMode="container"
               source={{uri: this.props.user.image}}>
             </Image>
-
             <View style={styles.imageButton}>
               <Icon.Button
                 name="photo-camera"
@@ -179,11 +238,8 @@ class Profile extends Component {
               name="check"
               size={30}
               color="#ccc" />} >
-
           </ActionButton>
-
         </View>
-
       </View>
     );
   }
@@ -244,12 +300,16 @@ var styles = HBStyleSheet.create({
 
 function mapStateToProps(state) {
     return {
+      fetchData: state.fetchData,
       user: state.user
     };
 }
 
 function mapDispatchToProps(dispatch) {
-  return { changeProfile: (profile) => {dispatch(changeProfile(profile))} };
+  return {
+    changeImageUser: (userId, picture, profile) => dispatch(changeImageUser(userId, picture, profile)),
+    changeProfile: (userId, profile) => {dispatch(changeProfile(userId, profile))}
+  };
 }
 
 

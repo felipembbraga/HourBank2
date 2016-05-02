@@ -2,12 +2,12 @@
 // usuário
 export type User = {
   email: string,
-  password: string,
-  image: ImageData
+  password: string
 }
 
 export type Profile = {
-    name: string
+    name: string,
+    image: ImageData
 }
 
 

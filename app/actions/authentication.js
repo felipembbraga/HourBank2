@@ -90,18 +90,20 @@ export function signIn(user: User): ThunkAction {
       // faz o login no firebase e dispara a action de signin
       let authData = await baseRef.authWithPassword(user);
 
-      let userRef = baseRef.child('profile');
-      userRef.orderByChild("userId").equalTo(authData.uid).once("value", function(snapshot) {
+      console.log(user);
+      console.log(authData.uid);
+
+      let userRef = baseRef.child('profile').child(authData.uid);
+      userRef.once("value", function(snapshot) {
 
         let mUser = {
-          key: snapshot.val().key,
           uid: authData.uid,
-          email: authData.password.email,
-          image: authData.password.profileImageURL
+          email: authData.password.email
         }
 
         let mProfile = {
-          name: snapshot.val().name
+          name: snapshot.val().name,
+          image: snapshot.val().image
         }
 
         let mData = {
@@ -147,13 +149,11 @@ export function signUp(user: User): ThunkAction {
           let authData = await baseRef.createUser(user);
 
           // Cria o filho do tipo profile
-          let userRef = baseRef.child('profile').push();
+          let userRef = baseRef.child('profile').child(authData.uid);
 
           // Define como sera o objeto profile a ser salvo
           let profile = {
-            key: userRef.key(),
-            name: user.name,
-            userId: authData.uid
+            name: user.name
           };
 
           // Salva o profile

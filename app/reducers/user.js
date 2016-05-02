@@ -35,7 +35,7 @@ export default function user(state: State = initialState, action) {
                 key: action.payload.session.user.key,
                 email: action.payload.session.user.email,
                 name: action.payload.session.profile.name,
-                image: action.payload.session.user.image,
+                image: action.payload.session.profile.image,
                 isLoggedIn: true
             };
         case 'SIGNIN_ERROR':
