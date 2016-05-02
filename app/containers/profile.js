@@ -160,6 +160,13 @@ class Profile extends Component {
       };
     }
 
+    var mSource = null;
+    if (this.state.image) {
+      mSource = {uri: this.state.image.data, isStatic: true};
+    } else {
+      mSource = require('../resource/img/user_placeholder.png');
+    }
+
 
       if(this.state.isFetching) {
         return (
@@ -181,7 +188,7 @@ class Profile extends Component {
                 <Image
                   style={styles.placeholder}
                   reiszeMode="container"
-                  source={{uri: this.state.image.data, isStatic: true}} >
+                  source= {mSource}>
 
                 </Image>
               </View>
@@ -228,7 +235,7 @@ class Profile extends Component {
 
           <View style={styles.profileHeader}>
             <Image
-              style={styles.placeholder}
+              style={styles.placeholderEdit}
               reiszeMode="container"
               source={{uri: this.state.image.data, isStatic: true}} >
 
@@ -297,7 +304,7 @@ var styles = HBStyleSheet.create({
     flex: 1
   },
   profileHeader: {
-    flex: 1.7,
+    flex: 2.3,
     backgroundColor: Color.color.DimGray
   },
   profileBody: {
@@ -307,11 +314,18 @@ var styles = HBStyleSheet.create({
     marginTop: 10
   },
   placeholder: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0
+    width: 240,
+    height: 240,
+    borderRadius: 240/2,
+    alignSelf: 'center',
+    marginTop: 10
+  },
+  placeholderEdit: {
+    width: 200,
+    height: 200,
+    borderRadius: 200/2,
+    alignSelf: 'center',
+    marginTop: 10
   },
   label: {
     marginTop: 10,
@@ -326,8 +340,9 @@ var styles = HBStyleSheet.create({
       fontSize: 20
   },
   imageButton: {
+
     alignSelf: 'center',
-    marginTop: 100
+    marginTop: 5
   }
 });
 
