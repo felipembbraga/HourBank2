@@ -43,6 +43,7 @@ class Profile extends Component {
       user: null,
       edit: false,
       name: this.props.user.name,
+      image: this.props.user.image,
       isFetching: false
     };
 
@@ -54,6 +55,7 @@ class Profile extends Component {
 
   componentDidMount() {
     console.log(this.props.user);
+    console.log(this.state);
   }
 
   componentWillReceiveProps(newProps) {
@@ -72,52 +74,79 @@ class Profile extends Component {
 
   takePicture() {
 
-      console.log('tirando foto');
+    this.setState({
+      isFetching: true
+    });
 
-          // this.setState({
-          //   isFetching: true
-          // });
+    let time = moment();
+    // pega a Imagem
+    ImagePickerManager.showImagePicker(this.cameraOptions, (response)  => {
 
-          let time = moment();
-          // pega a Imagem
-          ImagePickerManager.showImagePicker(this.cameraOptions, (response)  => {
+      // se o usuário cancelou, notifica na tela
+      if(response.didCancel) {
+        ToastAndroid.show('Cancelado.', ToastAndroid.SHORT);
+        this.setState({
+          isFetching: false
+        });
+        return;
+      }
 
-            // se o usuário cancelou, notifica na tela
-            if(response.didCancel) {
-              ToastAndroid.show('Cancelado.', ToastAndroid.SHORT);
-              this.setState({
-                isFetching: false
-              });
-              return;
-            }
+      // se deu erro, notifica na tela
+      if(response.error) {
+        ToastAndroid.show('Erro ao receber a foto', ToastAndroid.SHORT);
+        console.log(error);
+        this.setState({
+          isFetching: false
+        });
+        return;
+      }
 
-            // se deu erro, notifica na tela
-            if(response.error) {
-              ToastAndroid.show('Erro ao receber a foto', ToastAndroid.SHORT);
-              console.log(error);
-              this.setState({
-                isFetching: false
-              });
-              return;
-            }
+      this.setState({
+        image: {
+          uri: response.uri,
+          data: 'data:image/jpeg;base64,' + response.data
+        }
+      });
+
+      // action de bater o Ponto
+      this.props.changeImageUser(
+        this.props.user.id, {
+        uri: response.uri,
+        data: 'data:image/jpeg;base64,' + response.data
+        } , this.state);
 
 
-            console.log(response);
-            console.log(this.props.user.id);
-            // action de bater o Ponto
-            // @see app/actions/point.js
-            this.props.changeImageUser(
-              this.props.user.id, {
-              uri: response.uri,
-              data: 'data:image/jpeg;base64,' + response.data
-              } , this.state);
+        this.setState({
+          isFetching: false
+        });
 
-          });
+        this.editClose();
+
+    });
+  }
+
+  editClose() {
+      this.setState({edit: false});
   }
 
   render() {
 
-    leftItem = {
+    var icon = null;
+    if (this.state.edit) {
+
+      leftItem = {
+          title: 'Menu',
+
+          /**
+           * Ao passar um numero maior que zero muda
+           * o icone indicando que á notificações
+           */
+          icon: require('../resource/img/x-white@3x.png'),
+          onPress: this.editClose.bind(this),
+        };
+
+    } else  {
+      leftItem = {
         title: 'Menu',
 
         /**
@@ -129,6 +158,8 @@ class Profile extends Component {
           : require('../resource/img/hamburger.png'),
         onPress: this.handleShowMenu.bind(this),
       };
+    }
+
 
       if(this.state.isFetching) {
         return (
@@ -146,11 +177,12 @@ class Profile extends Component {
             </Header>
             <View style={styles.body}>
 
-              <View style={styles.profileHeader}>
+            <View style={styles.profileHeader}>
                 <Image
                   style={styles.placeholder}
                   reiszeMode="container"
-                  source={{uri: this.props.user.image}}>
+                  source={{uri: this.state.image.data, isStatic: true}} >
+
                 </Image>
               </View>
 
@@ -198,7 +230,8 @@ class Profile extends Component {
             <Image
               style={styles.placeholder}
               reiszeMode="container"
-              source={{uri: this.props.user.image}}>
+              source={{uri: this.state.image.data, isStatic: true}} >
+
             </Image>
             <View style={styles.imageButton}>
               <Icon.Button
@@ -206,7 +239,7 @@ class Profile extends Component {
                 size={30}
                 onPress={this.takePicture.bind(this)}
                 backgroundColor={Color.color.AccentColor}>
-                 <Text style={{fontFamily: 'Arial', fontSize: 15, color: 'white'}}>Tirar foto</Text>
+                 <Text style={{fontFamily: 'Arial', fontSize: 15, color: 'white'}}>Alterar foto</Text>
               </Icon.Button>
             </View>
 

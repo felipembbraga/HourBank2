@@ -63,12 +63,15 @@ export function changeProfile(userId : string, profile: Profile): ThunkAction {
         // altera os dados do profile no firebase
         let userRef = fbase.child('profile').child(userId);
         await userRef.update({name: profile.name});
+
+        dispatch(finishFetch());
         ToastAndroid.show('Alterado com sucesso!', ToastAndroid.SHORT);
 
         userRef.on("value", function(snapshot) {
 
         dispatch(changeProfileReducer(snapshot.val()));
         dispatch(finishFetch());
+        dispatch(initFetch('Aguarde...'));
 
         }, function (errorObject) {
           dispatch(finishFetch());
@@ -96,10 +99,12 @@ export function changeImageUser(userId : string, picture: ImageData, profile: Pr
         // altera os dados do profile no firebase
         let userRef = fbase.child('profile').child(userId);
         await userRef.update({image: picture});
+
+        dispatch(finishFetch());
         ToastAndroid.show('Alterado com sucesso!', ToastAndroid.SHORT);
+        dispatch(initFetch('Aguarde...'));
 
-
-        userRef.once("value", function(snapshot) {
+        userRef.on("value", function(snapshot) {
 
         dispatch(changeProfileReducer(snapshot.val()));
         dispatch(finishFetch());

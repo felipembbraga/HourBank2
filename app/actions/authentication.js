@@ -111,6 +111,8 @@ export function signIn(user: User): ThunkAction {
           profile: mProfile
         }
 
+        console.log(mData);
+
         dispatch(signin(mData));
         dispatch(finishFetch());
 

@@ -32,11 +32,11 @@ export default function user(state: State = initialState, action) {
             return {
                 ...state,
                 id: action.payload.session.user.uid,
-                key: action.payload.session.user.key,
-                email: action.payload.session.user.email,
-                name: action.payload.session.profile.name,
-                image: action.payload.session.profile.image,
-                isLoggedIn: true
+                    key: action.payload.session.user.key,
+                    email: action.payload.session.user.email,
+                    name: action.payload.session.profile.name,
+                    image: action.payload.session.profile.image,
+                    isLoggedIn: true
             };
         case 'SIGNIN_ERROR':
             return {
@@ -61,7 +61,8 @@ export default function user(state: State = initialState, action) {
             console.log(action.payload.session);
             return {
               ...state,
-              name: action.payload.session.name
+              name: action.payload.session.name,
+              image: action.payload.session.image
             };
         default:
             return state;
