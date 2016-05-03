@@ -11,6 +11,7 @@ import DrawerLayout from '../components/common/DrawerLayout';
 import MenuItem from '../components/MenuItem';
 import Home from './home';
 import Profile from './profile';
+import Settings from './settings';
 import { switchTab } from '../actions/navigation';
 import { loadPoints } from '../actions/point';
 
@@ -60,6 +61,8 @@ class SideMenu extends Component {
         return <Home navigator={this.props.navigator} />
       case 'profile':
         return <Profile navigator={this.props.navigator} />
+      case 'settings':
+        return <Settings naviagator={this.props.navigator} />
       default:
         return <Home navigator={this.props.navigator} />
     }
@@ -127,6 +130,12 @@ class SideMenu extends Component {
           icon="person"
           selected={this.props.tab === 'profile'}
           onPress={this.onTabSelect.bind(this, 'profile')} />
+
+          <MenuItem
+            title="Configurações"
+            icon="ios-gear"
+            selected={this.props.tab === 'settings'}
+            onPress={this.onTabSelect.bind(this, 'settings')} />
 
         <MenuItem
           title="Sair"
