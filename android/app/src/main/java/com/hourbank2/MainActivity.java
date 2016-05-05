@@ -1,16 +1,20 @@
 package com.hourbank2;
 
 import com.facebook.react.ReactActivity;
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.github.xinthink.rnmk.ReactMaterialKitPackage;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.imagepicker.ImagePickerPackage;
+import android.content.Intent;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends ReactActivity {
+
+    private ReactNativePushNotificationPackage mReactNativePushNotificationPackage;
 
     /**
      * Returns the name of the main component registered from JavaScript.
@@ -36,11 +40,21 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected List<ReactPackage> getPackages() {
+       mReactNativePushNotificationPackage = new ReactNativePushNotificationPackage(this);
         return Arrays.<ReactPackage>asList(
             new MainReactPackage(),
             new VectorIconsPackage(),
             new ReactMaterialKitPackage(),
-            new ImagePickerPackage()
+            new ImagePickerPackage(),
+            mReactNativePushNotificationPackage // <---- Add the Package
         );
     }
+
+    // Add onNewIntent
+   @Override
+   protected void onNewIntent (Intent intent) {
+     super.onNewIntent(intent);
+
+     mReactNativePushNotificationPackage.newIntent(intent);
+   }
 }
