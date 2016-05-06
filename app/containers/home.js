@@ -30,6 +30,7 @@ import {setCurrentDate} from '../actions/currentDate';
 import {pointsOfDaySelector, totalHoursOfDaySelector} from '../reselect/points';
 var ImagePickerManager = require('NativeModules').ImagePickerManager;
 
+
 /**
  * Container da tela Home
  */
@@ -157,7 +158,6 @@ class Home extends Component {
         // se deu erro, notifica na tela
         if(response.error) {
           ToastAndroid.show('Erro ao receber a foto', ToastAndroid.SHORT);
-          console.log(response.error);
           this.setState({
             isFetching: false
           });
@@ -191,12 +191,13 @@ class Home extends Component {
      * @return {void}
      */
     _viewPoint(point) {
-      this.setState({
-        viewModal: {
-          point: point,
-          isVisible: true
-        }
-      });
+      this.props.navigator.push({name: 'pointDetail', point: point});
+      // this.setState({
+      //   viewModal: {
+      //     point: point,
+      //     isVisible: true
+      //   }
+      // });
     }
 
     _viewEditPoint(point) {

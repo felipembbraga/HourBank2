@@ -4,7 +4,7 @@ import {persistStore, autoRehydrate} from 'redux-persist';
 import createLogger from 'redux-logger';
 import ReduxPromise from 'redux-promise';
 import thunkMiddleware from 'redux-thunk';
-import devTools from 'remote-redux-devtools';
+import Reactotron from 'reactotron';
 import reducers from '../reducers';
 
 // ativa o logger quando está em desenvolvimento
@@ -18,7 +18,12 @@ const logger = createLogger({
 });
 
 // aplica os middlewares definidos no createStore
-const createHBStore = applyMiddleware(thunkMiddleware, ReduxPromise, logger)(createStore);
+const createHBStore = applyMiddleware(
+  thunkMiddleware,
+  ReduxPromise,
+  Reactotron.reduxMiddleware,
+  logger
+)(createStore);
 
 /**
  * Configura o store para a aplicação
@@ -42,5 +47,6 @@ export default function configureStore(onComplete: ?() => void) {
   if (isDebuggingInChrome) {
     window.store = store;
   }
+  Reactotron.addReduxStore(store);
   return store;
 }

@@ -56,6 +56,7 @@ class HourBank extends Component {
           translucent={true}
           backgroundColor="#303F9F"
           barStyle="light-content"
+          animated={true}
         />
         {/*Navigator*/}
         <HBNavigator />

@@ -62,7 +62,7 @@ class SideMenu extends Component {
       case 'profile':
         return <Profile navigator={this.props.navigator} />
       case 'settings':
-        return <Settings naviagator={this.props.navigator} />
+        return <Settings navigator={this.props.navigator} />
       default:
         return <Home navigator={this.props.navigator} />
     }

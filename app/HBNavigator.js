@@ -12,6 +12,7 @@ import {connect} from 'react-redux';
 import SignIn from './containers/authentication/signin';
 import SignUp from './containers/authentication/signup';
 import SideMenu from './containers/sidemenu';
+import PointView from './components/PointView';
 
 /**
  * Componente que cria o navigator e implementa as funções
@@ -150,6 +151,8 @@ class HBNavigator extends Component {
             return (<SignUp route={route} navigator={navigator} />);
           case 'home':
             return (<SideMenu route={route} navigator={navigator} />);
+          case 'pointDetail':
+            return (<PointView route={route} navigator={navigator} />);
           default:
             // se o usuário está logado, retorna o sidemenu,
             // senão, retorna a tela de login
