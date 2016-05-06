@@ -5,18 +5,35 @@ import React, {
   StyleSheet
 } from 'react-native';
 
+import Touchable from '../components/common/Touchable';
+
 import {connect} from 'react-redux';
 import Header from '../components/common/Header';
 import * as HBStyleSheet from '../components/common/HBStyleSheet';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import Color from '../resource/color'; //Importa a palheta de cores
-
+import Notification from 'react-native-system-notification';
 
 class Settings extends Component {
 
   handleShowMenu() {
     this.context.openDrawer();
+  }
+
+  notification() {
+
+    // Notification.create({
+    //   subject: 'Scheduled Notification',
+    //   message: 'This notification will show on every Friday morning at 8:30 AM, starts at 2015/9/9 and end after 10 times.',
+    //   sendAt: new Date(2016, 4, 6, 8, 0),
+    //   repeatEvery: 'day',
+    //   count: 10
+    // });
+    Notification.create({
+      subject: 'Scheduled Notification',
+      message: 'This notification will show on every Friday morning at 8:30 AM, starts at 2015/9/9 and end after 10 times.'
+    });
   }
 
   render() {
@@ -41,6 +58,15 @@ class Settings extends Component {
           title="Configurações"
           leftItem={leftItem} >
         </Header>
+
+        <Touchable onPress={this.notification.bind(this)}>
+              <View>
+                <Text>
+                  Notificação
+                </Text>
+              </View>
+        </Touchable>
+
       </View>
     );
   }

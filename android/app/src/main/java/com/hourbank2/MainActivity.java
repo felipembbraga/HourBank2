@@ -1,17 +1,22 @@
 package com.hourbank2;
 
 import com.facebook.react.ReactActivity;
+import io.neson.react.notification.NotificationPackage;
+import com.oney.gcm.GcmPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.github.xinthink.rnmk.ReactMaterialKitPackage;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.AirMaps.AirPackage;
+import android.content.Intent;
+
 
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends ReactActivity {
+
 
     /**
      * Returns the name of the main component registered from JavaScript.
@@ -39,10 +44,13 @@ public class MainActivity extends ReactActivity {
     protected List<ReactPackage> getPackages() {
         return Arrays.<ReactPackage>asList(
             new MainReactPackage(),
+            new NotificationPackage(this),
+            new GcmPackage(),
             new VectorIconsPackage(),
             new ReactMaterialKitPackage(),
             new ImagePickerPackage(),
             new AirPackage()
         );
     }
+
 }
