@@ -130,7 +130,6 @@ android {
 
 dependencies {
     compile project(':react-native-system-notification')
-    compile project(':react-native-gcm-android')
     compile project(':react-native-vector-icons')
     compile project(':react-native-material-kit')
     compile project(':react-native-image-picker')

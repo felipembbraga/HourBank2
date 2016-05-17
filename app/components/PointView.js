@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
     elevation: 2
   },
   imageWrapper: {
+    width: width,
     justifyContent: 'center',
     alignItems: 'center',
     height: HALF_SCREEN_HEIGHT,
@@ -133,10 +134,10 @@ const styles = StyleSheet.create({
   image: {
     height: HALF_SCREEN_HEIGHT,
     width: width,
-    justifyContent: 'flex-end',
-    paddingHorizontal: 10
+    resizeMode: 'contain'
   },
   imageTitleWrapper: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'flex-end',
     paddingVertical: 10

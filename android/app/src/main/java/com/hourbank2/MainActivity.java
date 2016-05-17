@@ -1,8 +1,6 @@
 package com.hourbank2;
 
 import com.facebook.react.ReactActivity;
-import io.neson.react.notification.NotificationPackage;
-import com.oney.gcm.GcmPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.github.xinthink.rnmk.ReactMaterialKitPackage;
 import com.facebook.react.ReactPackage;
@@ -44,8 +42,6 @@ public class MainActivity extends ReactActivity {
     protected List<ReactPackage> getPackages() {
         return Arrays.<ReactPackage>asList(
             new MainReactPackage(),
-            new NotificationPackage(this),
-            new GcmPackage(),
             new VectorIconsPackage(),
             new ReactMaterialKitPackage(),
             new ImagePickerPackage(),
